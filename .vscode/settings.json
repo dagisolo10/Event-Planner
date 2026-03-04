@@ -1,0 +1,15 @@
+{
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "Postgres Table",
+            "database": "event-planner",
+            "username": "postgres"
+        }
+    ],
+    "cSpell.words": ["argb", "exceljs", "officedocument", "openxmlformats"]
+}

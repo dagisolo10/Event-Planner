@@ -1,0 +1,133 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+model User {
+    id            String         @id @default(uuid()) 
+    name          String
+    email         String         @unique
+    company       String?
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    events        Event[]
+    globalVendors GlobalVendor[]
+    payments      Payment[]
+}
+
+model Event {
+    id          String        @id @default(uuid())
+    title       String
+    description String?
+    clientName  String
+    clientEmail String?
+    startDate   DateTime
+    endDate     DateTime
+    budget      Float
+    location    String
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+    userId      String
+    user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    vendors     EventVendor[]
+    payments    Payment[]
+    tasks       Task[]
+    activities  Activity[]
+}
+
+model Activity {
+    id        String       @id @default(uuid())
+    eventId   String
+    event     Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    type      ActivityType
+    message   String
+    createdAt DateTime     @default(now())
+
+    @@index([eventId])
+}
+
+model GlobalVendor {
+    id               String        @id @default(uuid())
+    name             String
+    isActive         Boolean       @default(true)
+    category         String
+    website          String?
+    contact          String?
+    email            String?
+    createdAt        DateTime      @default(now())
+    updatedAt        DateTime      @updatedAt
+    userId           String
+    eventAssignments EventVendor[]
+    user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EventVendor {
+    id             String       @id @default(uuid())
+    cost           Float
+    deposit        Float
+    dueDate        DateTime
+    createdAt      DateTime     @default(now())
+    eventId        String
+    globalVendorId String
+    event          Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    globalVendor   GlobalVendor @relation(fields: [globalVendorId], references: [id])
+    payments       Payment[]
+}
+
+model Payment {
+    id            String       @id @default(uuid())
+    amount        Float
+    type          PaymentType
+    dueDate       DateTime
+    description   String?
+    eventId       String
+    createdAt     DateTime     @default(now())
+    eventVendorId String?
+    userId        String
+    event         Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    vendor        EventVendor? @relation(fields: [eventVendorId], references: [id])
+    user          User         @relation(fields: [userId], references: [id])
+}
+
+model Task {
+    id          String     @id @default(uuid())
+    title       String
+    description String?
+    assignedTo  String?
+    status      TaskStatus
+    dueDate     DateTime
+    priority    Priority
+    eventId     String
+    createdAt   DateTime   @default(now())
+    event       Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+enum ActivityType {
+    TaskCreated
+    TaskCompleted
+    VendorAdded
+    VendorUpdated
+    VendorPaid
+    EventArchived
+}
+
+enum PaymentType {
+    Client
+    Vendor
+}
+
+enum TaskStatus {
+    Pending
+    InProgress
+    Done
+}
+
+enum Priority {
+    Urgent
+    High
+    Medium
+    Low
+}
