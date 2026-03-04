@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import { MiniIconBar } from "@/components/navbar/mini-icon-bar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { Sidebar } from "@/components/others/sidebar";
-import { MiniIconBar } from "@/components/others/mini-icon-bar";
+import { Sidebar } from "lucide-react";
+import { Metadata } from "next";
+
 
 export const metadata: Metadata = {
     title: "EventSync — Dashboard",

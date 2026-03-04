@@ -4,10 +4,10 @@ import { LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { eventsSubItems, vendorSubItems, financialSubItems } from "./sidebar";
-import { ThemeToggle } from "./theme-toggle";
 import { cn } from "@/lib/utils";
 import { UserButton } from "@stackframe/stack";
+import { ThemeToggle } from "../others/theme-toggle";
+import { eventsSubItems, vendorSubItems, financialSubItems } from "./sidebar";
 
 export function MiniIconBar() {
     const { state } = useSidebar();

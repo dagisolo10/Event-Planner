@@ -6,9 +6,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ForwardRefExoticComponent, RefAttributes } from "react";
 import { IconCurrencyDollar } from "@tabler/icons-react";
-import { ThemeToggle } from "./theme-toggle";
 import { cn } from "@/lib/utils";
 import { UserButton } from "@stackframe/stack";
+import { ThemeToggle } from "../others/theme-toggle";
 
 export const eventsSubItems = [
     { href: "/dashboard/events", label: "All Events", icon: Calendar },
