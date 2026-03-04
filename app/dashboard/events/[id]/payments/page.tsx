@@ -3,7 +3,6 @@ import getEvents from "@/server/events/get-events";
 import { notFound, redirect } from "next/navigation";
 import { formatUSD } from "@/helper/helper-functions";
 import { Params } from "next/dist/server/request/params";
-import PracticeExport from "@/components/practice-export";
 import PaymentTable from "@/components/payment/payment-table";
 import { PaymentModal } from "@/components/payment/payment-modal";
 import getEventPayments from "@/server/payments/get-event-payments";
@@ -41,7 +40,6 @@ export default async function EventPayments({ params }: { params: Promise<Params
                 </div>
 
                 <div className="flex items-center justify-end gap-4">
-                    <PracticeExport eventId={id} />
                     <PaymentModal event={event} events={events} eventVendors={eventVendors} />
                 </div>
             </div>
