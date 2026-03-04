@@ -6,7 +6,7 @@ import generateVendorSheet from "@/helper/generate-vendors";
 import generatePaymentSheet from "@/helper/generate-payments";
 import getPopulatedEvent from "@/server/events/get-populated-events";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const workbook = new ExcelJS.Workbook();
 
