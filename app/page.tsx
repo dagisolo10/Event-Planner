@@ -30,7 +30,7 @@ export default function Home() {
 
                 <ImagePreview />
 
-                <section id="features" className="px-4 py-12 md:px-12">
+                <section className="px-4 py-12 md:px-12">
                     <div className="mb-12 flex flex-col justify-center text-center">
                         <h2 className="font-poppins mx-auto mb-4 max-w-3xl text-2xl font-bold md:text-4xl">
                             Everything You Need to <span className="text-primary">Organize Like a Pro</span>
@@ -68,7 +68,7 @@ export default function Home() {
                     </div>
                 </section>
 
-                <footer id="pricing" className="space-y-6 py-12 text-center">
+                <footer className="space-y-6 py-12 text-center">
                     <h2 className="font-poppins text-2xl leading-8 font-bold md:text-4xl">
                         Ready to organize your next <span className="text-primary">event like a pro?</span>
                     </h2>

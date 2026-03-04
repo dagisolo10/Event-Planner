@@ -5,12 +5,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { DropdownMenuSeparator } from "../ui/dropdown-menu";
+import { ThemeToggle } from "../others/theme-toggle";
 
 const navItems = [
     { label: "Register", href: "/register" },
     { label: "Features", href: "#features" },
-    { label: "Pricing", href: "/pricing" },
-    { label: "About Us", href: "/about" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "About Us", href: "#about" },
 ];
 
 export default function GemNav() {
@@ -61,6 +62,9 @@ export default function GemNav() {
                                     </motion.div>
                                 ))}
                             </nav>
+                            <div className="mt-auto">
+                                <ThemeToggle />
+                            </div>
                         </motion.div>
                     </div>
                 )}
