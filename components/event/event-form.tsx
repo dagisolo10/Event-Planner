@@ -1,23 +1,26 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Field, FieldGroup } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Label as UILabel } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FieldGroup } from "@/components/ui/field";
 import { Progress } from "@/components/ui/progress";
 import { formatDateForInput, formatTimeForInput } from "@/helper/helper-functions";
 import createEvent from "@/server/events/create-event";
 import updateEvent from "@/server/events/update-event";
 import { Event } from "@prisma/client";
-import { Copy, User, MapPin, DollarSign, Mail, Loader2, LucideProps, FileText, Sparkles, AlertCircle, Clock, Calendar as CalIcon } from "lucide-react";
+import { User, MapPin, DollarSign, Mail, Loader2, FileText, Sparkles, Clock, Calendar as CalIcon, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, ForwardRefExoticComponent, ReactNode, RefAttributes, SyntheticEvent, useState, useCallback, useEffect } from "react";
+import { ChangeEvent, ReactNode, SyntheticEvent, useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { Card } from "../ui/card";
+import { InputField, TextAreaField } from "./input-field";
+import WarningWrapper from "./warning-wrapper";
+import CalendarPopup from "../common/calendar-dialog-4";
 
 export default function EventForm({ event }: { event?: Event }) {
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const router = useRouter();
     const isUpdate = !!event;
+    const formRef = useRef<HTMLFormElement>(null);
+    const [copying, setCopying] = useState<boolean>(false);
 
     const [completion, setCompletion] = useState(0);
     const [formValues, setFormValues] = useState({
@@ -32,32 +35,49 @@ export default function EventForm({ event }: { event?: Event }) {
     const endDate = new Date(`${formValues.endDate}T${formValues.endTime}`);
     const isDateError = formValues.startDate && formValues.endDate && formValues.startTime && formValues.endTime && endDate <= startDate;
 
-    const calculateProgress = useCallback((formData: FormData) => {
-        const requiredFields = ["title", "clientName", "budget", "location", "startDate", "startTime", "endDate", "endTime"];
+    const calculateProgress = useCallback(() => {
+        if (!formRef.current) return;
+
+        const formData = new FormData(formRef.current);
+        const fields = ["title", "clientName", "location", "budget", "description", "clientEmail", "startDate", "startTime", "endDate", "endTime"];
 
         let filledCount = 0;
 
-        requiredFields.forEach((field) => {
-            const value = formData.get(field);
+        fields.forEach((field) => {
+            let value;
+            if (field in formValues) {
+                value = formValues[field as keyof typeof formValues];
+            } else {
+                value = formData.get(field);
+            }
 
-            if (field === "budget" && Number(value) > 0) filledCount++;
-            else if (value && String(value).trim() !== "") filledCount++;
+            if (field === "budget") {
+                if (Number(value) > 0) filledCount++;
+            } else if (value && String(value).trim() !== "") {
+                filledCount++;
+            }
         });
 
-        if (String(formData.get("description")).trim().length > 0) filledCount++;
-        if (String(formData.get("clientEmail")).trim().length > 0) filledCount++;
-
         setCompletion(filledCount * 10);
-    }, []);
+    }, [formValues]);
+
+    const handleCopy = () => {
+        if (!event?.clientEmail) return;
+        setCopying(true);
+        navigator.clipboard.writeText(event.clientEmail);
+        toast.success("Email copied");
+        setTimeout(() => setCopying(false), 2000);
+    };
+
+    const handleFormChange = () => calculateProgress();
+
+    const handleBudgetChange = (e: ChangeEvent<HTMLInputElement, HTMLInputElement>) => setFormValues((prev) => ({ ...prev, budget: Number(e.target.value) }));
+
+    useEffect(() => calculateProgress(), [formValues, calculateProgress]);
 
     useEffect(() => {
         if (isUpdate) setCompletion(100);
     }, [isUpdate]);
-
-    const handleFormChange = (e: SyntheticEvent<HTMLFormElement>) => {
-        const formData = new FormData(e.currentTarget);
-        calculateProgress(formData);
-    };
 
     async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -69,13 +89,35 @@ export default function EventForm({ event }: { event?: Event }) {
         const validationErrors: string[] = [];
         const scrollTargets: string[] = [];
 
-        const fieldLabels: Record<string, string> = { title: "Title", clientName: "Client", location: "Location", budget: "Budget", startDate: "Start Date", startTime: "Start Time", endDate: "End Date", endTime: "End Time" };
+        const fieldLabels: Record<string, string> = {
+            title: "Title",
+            clientName: "Client",
+            location: "Location",
+            budget: "Budget",
+        };
 
         Object.keys(fieldLabels).forEach((key) => {
             const value = formData.get(key);
             if (!value || String(value).trim() === "") {
                 validationErrors.push(`${fieldLabels[key]} is required`);
                 if (!scrollTargets.includes(key)) scrollTargets.push(key);
+            }
+        });
+
+        const dateFields: Record<keyof typeof formValues, string> = {
+            startDate: "Start Date",
+            startTime: "Start Time",
+            endDate: "End Date",
+            endTime: "End Time",
+            budget: "Budget",
+        };
+
+        (Object.keys(dateFields) as Array<keyof typeof formValues>).forEach((key) => {
+            if (key === "budget") return;
+
+            if (!formValues[key] || String(formValues[key]).trim() === "") {
+                validationErrors.push(`${dateFields[key]} is required`);
+                if (!scrollTargets.includes("date")) scrollTargets.push("date");
             }
         });
 
@@ -115,15 +157,15 @@ export default function EventForm({ event }: { event?: Event }) {
             description: (payload.description as string).trim() || null,
             clientName: String(payload.clientName).trim(),
             clientEmail: (payload.clientEmail as string).trim() || null,
-            startDate: new Date(`${payload.startDate}T${payload.startTime}`),
-            endDate: new Date(`${payload.endDate}T${payload.endTime}`),
-            budget: Number(payload.budget),
+            startDate: new Date(`${formValues.startDate}T${formValues.startTime}`),
+            endDate: new Date(`${formValues.endDate}T${formValues.endTime}`),
+            budget: Number(formValues.budget),
             location: String(payload.location).trim(),
         };
 
         const action = isUpdate ? updateEvent({ ...data, id: event!.id }) : createEvent(data);
 
-        await toast.promise(action, {
+        toast.promise(action, {
             loading: isUpdate ? "Updating event..." : "Creating event...",
             success: (res) => {
                 if ("error" in res) throw new Error(res.error);
@@ -135,146 +177,86 @@ export default function EventForm({ event }: { event?: Event }) {
         });
     }
 
-    const handleCopy = () => {
-        if (!event?.clientEmail) return;
-        navigator.clipboard.writeText(event.clientEmail);
-        toast.success("Email copied");
-    };
-
-    const handleBudgetChange = (e: ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
-        setFormValues((prev) => ({ ...prev, budget: Number(e.target.value) }));
-    };
-
     return (
-        <div className="mx-auto max-w-3xl flex-1 p-12">
-            <header className="mb-6 space-y-3">
-                <div className="flex items-center gap-2">
-                    <span className="bg-foreground h-1 w-8 rounded-full" />
-                    <p className="text-xs font-black tracking-wide text-zinc-500 uppercase">{isUpdate ? "Edit Event" : "Create New Event"}</p>
+        <main className="mx-auto w-full max-w-5xl space-y-8 pb-20">
+            <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                        <div className="bg-primary h-1 w-6 rounded-full" />
+                        <span className="font-poppins text-muted-foreground text-xs font-bold tracking-widest uppercase">{isUpdate ? "Configuration" : "New Project"}</span>
+                    </div>
+                    <h1 className="font-poppins text-4xl font-extrabold tracking-tight">
+                        {isUpdate ? "Refine " : "Event "}
+                        <span className="text-gradient">Blueprint</span>
+                    </h1>
                 </div>
-                <h2 className="text-4xl font-extrabold">{isUpdate ? "Refine the Details" : "Start With the Essentials"}</h2>
-                <p className="text-muted-foreground">{isUpdate ? "Update your event's core information. Changes reflect everywhere." : "Define the core details. Managing vendors and budgets starts here."}</p>
+
+                <div className="w-full space-y-2 md:w-72">
+                    <div className="text-muted-foreground flex justify-between text-xs font-semibold tracking-wide uppercase">
+                        <span>Readiness</span>
+                        <span className={completion === 100 ? "text-emerald-500" : ""}>{completion}%</span>
+                    </div>
+                    <Progress value={completion} className={completion === 100 ? "[&>div]:bg-emerald-500" : "[&>div]:bg-primary"} />
+                </div>
             </header>
 
-            <div className="mb-8 space-y-2">
-                <div className="flex justify-between text-xs font-bold">
-                    <span className="text-accent-foreground">Profile Completion</span>
-                    <span className={completion === 100 ? "text-emerald-500" : ""}>{completion}%</span>
-                </div>
-                <Progress value={completion} className={completion === 100 ? "[&>div]:bg-emerald-500" : "[&>div]:bg-primary"} />
-            </div>
+            <Card className="bg-background/50 relative overflow-hidden border-none p-8 shadow-2xl backdrop-blur-md dark:bg-zinc-900/20">
+                <div className="bg-primary/10 absolute -top-24 -right-24 hidden size-64 blur-3xl dark:block" />
 
-            <form onChange={handleFormChange} onSubmit={handleSubmit} className="space-y-6">
-                <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <InputField id="title" label="Event Title" icon={FileText} name="title" defaultValue={event?.title} placeholder="e.g. Annual Leadership Summit" />
-                    <InputField id="clientName" label="Client / Organization" icon={User} name="clientName" defaultValue={event?.clientName} placeholder="e.g. Acme Corp" />
-                </FieldGroup>
+                <form ref={formRef} onChange={handleFormChange} onSubmit={handleSubmit} className="space-y-8">
+                    <section className="space-y-6">
+                        <h3 className="font-poppins text-xl font-bold">General Information</h3>
+                        <InputGroup>
+                            <InputField id="title" label="Event Title" icon={FileText} name="title" defaultValue={event?.title} placeholder="e.g. Annual Gala 2024" />
+                            <InputField id="clientName" label="Client / Organization" icon={User} name="clientName" defaultValue={event?.clientName} placeholder="Client Name" />
+                        </InputGroup>
 
-                <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <InputField id="clientEmail" name="clientEmail" label="Email (optional)" icon={Mail} defaultValue={event?.clientEmail || ""} placeholder="client@example.com" type="email" toCopy onClick={handleCopy} />
-                    <InputField id="location" label="Venue or Location" icon={MapPin} name="location" placeholder="Physical address or 'Virtual'" defaultValue={event?.location} />
-                </FieldGroup>
+                        <InputGroup>
+                            <InputField id="clientEmail" name="clientEmail" label="Contact Email" icon={Mail} defaultValue={event?.clientEmail || ""} placeholder="client@email.com" type="email" toCopy onClick={handleCopy} copying={copying} />
+                            <InputField id="location" label="Venue Location" icon={MapPin} name="location" placeholder="City, Venue, or Remote" defaultValue={event?.location} />
+                        </InputGroup>
+                    </section>
 
-                <WarningWrapper id="budget" invalid={formValues.budget < 0} message="Budget can't be negative">
-                    <InputField id="budget" label="Estimated Budget" icon={DollarSign} name="budget" type="number" defaultValue={event?.budget} placeholder="e.g. 15000" onChange={handleBudgetChange} formValues={formValues} />
-                </WarningWrapper>
+                    <section className="space-y-6 border-t pt-8 dark:border-white/5">
+                        <h3 className="font-poppins text-xl font-bold">Financial & Logistics</h3>
 
-                <WarningWrapper id="date" invalid={!!isDateError} message="Ending schedule cannot be before or same as starting schedule.">
-                    <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                        <InputField id="startDate" label="Start Date" icon={CalIcon} name="startDate" type="date" defaultValue={formValues.startDate} onChange={(e) => setFormValues((prev) => ({ ...prev, startDate: e.target.value }))} />
-                        <InputField id="startTime" label="Start Time" icon={Clock} name="startTime" type="time" defaultValue={event ? formatTimeForInput(event.startDate) : ""} onChange={(e) => setFormValues((prev) => ({ ...prev, startTime: e.target.value }))} />
-                    </FieldGroup>
+                        <InputGroup>
+                            <WarningWrapper id="budget" invalid={formValues.budget < 0} message="Budget can't be negative. Please enter a positive value.">
+                                <InputField id="budget" label="Budget Estimate" icon={DollarSign} name="budget" type="number" defaultValue={event?.budget} placeholder="0.00" formValues={formValues} onChange={handleBudgetChange} />
+                            </WarningWrapper>
 
-                    <FieldGroup className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-                        <InputField id="endDate" label="End Date" icon={CalIcon} name="endDate" type="date" defaultValue={formValues.endDate} onChange={(e) => setFormValues((prev) => ({ ...prev, endDate: e.target.value }))} />
-                        <InputField id="endTime" label="Ending Time" icon={Clock} name="endTime" type="time" defaultValue={event ? formatTimeForInput(event.endDate) : ""} onChange={(e) => setFormValues((prev) => ({ ...prev, endTime: e.target.value }))} />
-                    </FieldGroup>
-                </WarningWrapper>
+                            <WarningWrapper className="space-y-4" id="date" invalid={!!isDateError} message="End schedule can't be earlier than or equal to the start schedule">
+                                <InputGroup>
+                                    <CalendarPopup
+                                        label="Commences"
+                                        name="startDate"
+                                        icon={CalIcon}
+                                        value={formValues.startDate}
+                                        timeValue={formValues.startTime}
+                                        onUpdate={(date, time) => setFormValues((prev) => ({ ...prev, startDate: date, startTime: time }))}
+                                    />
+                                    <CalendarPopup label="Concludes" name="endDate" icon={Clock} value={formValues.endDate} timeValue={formValues.endTime} onUpdate={(date, time) => setFormValues((prev) => ({ ...prev, endDate: date, endTime: time }))} />
+                                </InputGroup>
+                            </WarningWrapper>
+                        </InputGroup>
+                    </section>
 
-                <TextAreaField id="description" label="Event Description (optional)" name="description" defaultValue={event?.description || ""} placeholder="Vision and goals..." />
+                    <section className="space-y-4 border-t pt-8 dark:border-white/5">
+                        <TextAreaField id="description" label="Vision & Goals" name="description" defaultValue={event?.description || ""} placeholder="Describe the atmosphere, objectives, and key requirements..." />
+                    </section>
 
-                <footer className="mt-8 flex items-center justify-end gap-4">
-                    {isUpdate && (
-                        <Button disabled={loading} variant="outline" type="button" onClick={() => window.history.back()}>
-                            Cancel
+                    <footer className="flex items-center justify-end gap-4 pt-4">
+                        <Button disabled={loading} type="submit" size="lg" className="group rounded-full px-8 font-bold transition-all hover:scale-105 active:scale-95">
+                            {loading ? <Loader2 className="size-4 animate-spin" /> : isUpdate ? <CheckCircle2 className="size-4" /> : <Sparkles className="size-4" />}
+                            {isUpdate ? "Save Changes" : "Create Event"}
                         </Button>
-                    )}
-                    <Button disabled={loading} size="lg" className={isUpdate ? "" : "w-full"}>
-                        {loading && <Loader2 className="size-4 animate-spin" />}
-                        {isUpdate ? "Save Changes" : "Create Event"}
-                    </Button>
-                </footer>
-            </form>
-        </div>
+                    </footer>
+                </form>
+            </Card>
+        </main>
     );
 }
 
-interface InputProp {
-    label: string;
-    id: string;
-    name: string;
-    type?: string;
-    icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
-    placeholder?: string;
-    defaultValue?: string | number;
-    onChange?: (e: ChangeEvent<HTMLInputElement, HTMLInputElement>) => void;
-    toCopy?: boolean;
-    onClick?: () => void;
-    formValues?: Record<string, string | number>;
-}
-
-function InputField({ label, id, name, type = "text", icon: Icon, defaultValue, placeholder, onChange, toCopy, onClick, formValues }: InputProp) {
-    const isHighBudget = id === "budget" && formValues && Number(formValues.budget) > 100000;
-    return (
-        <Field id={id} className="gap-2">
-            <div className="flex items-center justify-between">
-                <Label htmlFor={id}>{label}</Label>
-                <span className={`${isHighBudget ? "block" : "invisible"} text-ss flex items-center gap-1 font-medium tracking-wider text-amber-500 uppercase`}>
-                    <Sparkles className="size-3" /> High Budget Event
-                </span>
-            </div>
-
-            <div className="relative">
-                <Icon className="absolute top-1/2 left-4 size-4 -translate-y-1/2 text-zinc-500" />
-                <Input name={name} defaultValue={defaultValue} className={toCopy ? "px-10" : "pl-10"} type={type} id={id} placeholder={placeholder} onChange={onChange} />
-                {toCopy && defaultValue && <Copy onClick={onClick} className="absolute top-1/2 right-4 size-4 -translate-y-1/2 cursor-pointer text-zinc-500" />}
-            </div>
-        </Field>
-    );
-}
-
-function TextAreaField({ label, id, name, defaultValue, placeholder }: Omit<InputProp, "icon" | "type">) {
-    return (
-        <Field className="gap-2">
-            <Label htmlFor={id}>{label}</Label>
-            <Textarea name={name} defaultValue={defaultValue} placeholder={placeholder} className="min-h-32 resize-none p-4" id={id} />
-        </Field>
-    );
-}
-
-function Label({ children, htmlFor, className }: { children: ReactNode; htmlFor: string; className?: string }) {
-    return (
-        <UILabel className={`font-semibold ${className}`} htmlFor={htmlFor}>
-            {children}
-        </UILabel>
-    );
-}
-
-interface Wrapper {
-    invalid: boolean;
-    message: string;
-    children: ReactNode;
-}
-
-function WarningWrapper({ invalid, children, message, id }: Wrapper & { id?: string }) {
-    return (
-        <div id={id} className={`rounded-r-xl border-l-2 transition-all duration-300 ${invalid ? "border-destructive animate-shake bg-destructive/5 p-4" : "border-transparent p-0"}`}>
-            {children}
-            {invalid && (
-                <p className="text-destructive mt-3 flex items-center gap-2 text-xs font-medium">
-                    <AlertCircle className="size-3" /> {message}
-                </p>
-            )}
-        </div>
-    );
+function InputGroup({ children }: { children: ReactNode }) {
+    return <FieldGroup className="grid grid-cols-1 gap-6 md:grid-cols-2">{children}</FieldGroup>;
 }

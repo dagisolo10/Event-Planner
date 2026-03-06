@@ -4,6 +4,7 @@ import prisma from "@/lib/config/prisma";
 import authCheck from "../auth/auth-check";
 import { Priority, TaskStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import addActivity from "../activity/create-activity";
 
 interface Data {
     eventId: string;
@@ -31,6 +32,12 @@ export default async function createTask(data: Data) {
                 event: { connect: { id: eventId } },
             },
             include: { event: true },
+        });
+
+        await addActivity({
+            type: "TaskCreated",
+            eventId: data.eventId,
+            message: `New milestone established: ${data.title}`,
         });
 
         revalidatePath(`/dashboard/events/${eventId}`);

@@ -1,6 +1,7 @@
 "use server";
 import { wrapAction } from "@/helper/action-wrapper";
 import prisma from "@/lib/config/prisma";
+import addActivity from "@/server/activity/create-activity";
 import authCheck from "@/server/auth/auth-check";
 import { revalidatePath } from "next/cache";
 
@@ -27,7 +28,14 @@ export default async function updateEventVendor(data: Data) {
             return await trx.eventVendor.update({
                 where: { id, eventId, event: { userId } },
                 data: updateData,
+                include: { globalVendor: true },
             });
+        });
+
+        await addActivity({
+            type: "VendorUpdated",
+            eventId: data.eventId,
+            message: `Updated agreement details for ${result.globalVendor.name}`,
         });
 
         revalidatePath(`/dashboard/events/${data.eventId}/vendors`);

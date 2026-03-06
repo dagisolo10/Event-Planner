@@ -200,9 +200,7 @@ export default function PaymentTable({ eventId, events, payments, eventVendors }
                                 <TableRow key={payment.id} className="font-medium">
                                     <TableCell>
                                         <div className="flex items-center gap-3">
-                                            <div className={`rounded-full p-2 ${payment.type === "Client" ? "bg-emerald-500/20 text-emerald-500" : "bg-rose-500/20 text-rose-500"}`}>
-                                                {payment.type === "Client" ? <ArrowUpCircle className="size-4" /> : <ArrowDownCircle className="size-4" />}
-                                            </div>
+                                            <div className={`rounded-full p-2 ${payment.type === "Client" ? "bg-emerald-500/20 text-emerald-500" : "bg-rose-500/20 text-rose-500"}`}>{payment.type === "Client" ? <ArrowUpCircle className="size-4" /> : <ArrowDownCircle className="size-4" />}</div>
 
                                             <div>
                                                 <p>{payment.displayName}</p>

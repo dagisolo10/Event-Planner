@@ -21,8 +21,8 @@ export default function ImagePreview() {
         );
 
     return (
-        <div className="dark:shadow-primary/50 mx-auto h-auto w-10/12 shadow-[0_30px_100px_-40px] shadow-black/70 md:w-full md:max-w-4xl">
+        <section className="dark:shadow-primary/50 mx-auto h-auto w-10/12 shadow-[0_30px_100px_-40px] shadow-black/70 md:w-full md:max-w-4xl">
             <Image src={theme === "dark" ? "/dash-dark.png" : "/job.png"} alt="App Dashboard Preview" width={1920} height={1080} />
-        </div>
+        </section>
     );
 }

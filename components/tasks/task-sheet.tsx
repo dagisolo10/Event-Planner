@@ -103,7 +103,7 @@ export function TaskSheet({ eventId, task, open: controlledOpen, setOpen: setCon
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
             {!isEditMode && (
                 <SheetTrigger asChild>
-                    <Button className="w-full sm:w-auto">
+                    <Button className="w-full sm:w-auto max-w-10/12">
                         <Plus className="size-4" /> Create Task
                     </Button>
                 </SheetTrigger>

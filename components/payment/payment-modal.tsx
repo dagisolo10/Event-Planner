@@ -22,6 +22,7 @@ interface ModalProp {
     payment?: Payment;
     open?: boolean;
     setOpen?: (open: boolean) => void;
+    onOpenChange?: () => void;
 }
 
 export function PaymentModal({ event, events, eventVendors, payment, open: controlledOpen, setOpen: setControlledOpen }: ModalProp) {
@@ -112,17 +113,16 @@ export function PaymentModal({ event, events, eventVendors, payment, open: contr
         });
     };
 
-    
-
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                {!isEditMode && (
-                    <Button>
-                        <Plus className="size-4" /> Record Payment
-                    </Button>
-                )}
-            </DialogTrigger>
+            {!isEditMode ||
+                (controlledOpen && (
+                    <DialogTrigger asChild>
+                        <Button>
+                            <Plus className="size-4" /> Record Payment
+                        </Button>
+                    </DialogTrigger>
+                ))}
 
             <DialogContent className="max-h-[95vh] overflow-y-auto sm:max-w-lg">
                 <form onSubmit={handleSubmit}>
