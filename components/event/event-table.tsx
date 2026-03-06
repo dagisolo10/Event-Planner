@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { Search, MoreHorizontal } from "lucide-react";
+import { Search, MoreHorizontal, CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,7 @@ import { Event } from "@prisma/client";
 import { getEventStatus } from "@/helper/get-status";
 import { statusColors } from "@/mocks/status-colors";
 import UniversalDeleteDialog from "../common/universal-alert-dialog";
+import TableWrapper from "../others/table-border-wrapper";
 
 type EventSortKey = "Budget Ascending" | "Budget Descending" | "Cost Ascending" | "Cost Descending" | "Name Ascending" | "Name Descending" | "Start Date Ascending" | "Start Date Descending" | "End Date Ascending" | "End Date Descending";
 type EventFilterKey = "All" | "Completed" | "Ongoing" | "Upcoming";
@@ -92,50 +93,72 @@ export default function SearchEvent({ events }: { events: Event[] }) {
 
     return (
         <div>
-            <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center">
-                <div className="relative flex-1">
+            <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="group relative max-w-sm flex-1">
                     <Label htmlFor="query">
-                        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                        <Search className="text-muted-foreground group-focus-within:text-primary absolute top-1/2 left-4 z-10 size-4 -translate-y-1/2 transition-colors" />
                     </Label>
-                    <Input value={query} onChange={handleQueryChange} placeholder="Search events, clients, or locations..." id="query" className="pl-10 focus-visible:ring-0" />
+                    <Input value={query} onChange={handleQueryChange} placeholder="Search events, clients, or locations..." id="query" className="border-input/80 focus-visible:ring-primary focus-visible:border-primary h-11 rounded-full pr-4 pl-11" />
                 </div>
 
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline">Sort By: {sortBy}</Button>
-                    </DropdownMenuTrigger>
+                <div className="flex items-center gap-3">
+                    {(query || statusFilter !== "All") && (
+                        <Button variant="secondary" size="lg" onClick={clearFilters} className="text-muted-foreground hover:text-destructive rounded-full tracking-wide">
+                            Reset
+                        </Button>
+                    )}
 
-                    <DropdownMenuContent className="w-56">
-                        <DropdownMenuItem onClick={() => handleSortChange("Name Ascending")}>Name: A to Z</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleSortChange("Name Descending")}>Name: Z to A</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleSortChange("Budget Descending")}>Budget: High to Low</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleSortChange("Budget Ascending")}>Budget: Low to High</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleSortChange("Start Date Ascending")}>Start Date: Earliest First</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleSortChange("Start Date Descending")}>Start Date: Latest First</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleSortChange("End Date Ascending")}>End Date: Earliest First</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleSortChange("End Date Descending")}>End Date: Latest First</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="lg" className="border-muted-foreground/20 bg-background/50 hover:bg-accent/5 hover:text-primary rounded-full px-5 tracking-tight transition-all">
+                                <span className="text-muted-foreground font-medium">Sort By:</span>
+                                {sortBy}
+                            </Button>
+                        </DropdownMenuTrigger>
 
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline">Filter: {statusFilter}</Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        <DropdownMenuItem onClick={() => handleStatusChange("All")}>All</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleStatusChange("Completed")}>Completed</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleStatusChange("Ongoing")}>Ongoing</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleStatusChange("Upcoming")}>Upcoming</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                        <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2">
+                            {[
+                                { method: "Name Ascending", label: "Name: A to Z" },
+                                { method: "Name Descending", label: "Name: Z to A" },
+                                { method: "Budget Ascending", label: "Budget: High to Low" },
+                                { method: "Budget Descending", label: "Budget: Low to High" },
+                            ].map((item) => (
+                                <DropdownMenuItem onClick={() => handleSortChange(item.method as EventSortKey)} className="flex items-center justify-between" key={item.method}>
+                                    {item.label}
+                                    {sortBy === item.method && <div className="bg-primary size-2 rounded-full" />}
+                                </DropdownMenuItem>
+                            ))}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleSortChange("Start Date Ascending")} className="flex items-center justify-between text-xs tracking-widest uppercase opacity-70">
+                                Earliest Dates First
+                                {sortBy === "Start Date Ascending" && <div className="bg-primary size-2 rounded-full" />}
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="lg" className="border-muted-foreground/20 bg-background/50 hover:bg-primary/5 hover:text-primary rounded-full px-5 tracking-tight transition-all">
+                                <span className="text-muted-foreground font-medium">Status:</span>
+                                {statusFilter}
+                            </Button>
+                        </DropdownMenuTrigger>
+
+                        <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2">
+                            {(["All", "Completed", "Ongoing", "Upcoming"] as EventFilterKey[]).map((status) => (
+                                <DropdownMenuItem key={status} onClick={() => handleStatusChange(status as EventFilterKey)} className="flex items-center justify-between">
+                                    {status}
+                                    {statusFilter === status && <div className="bg-primary size-2 rounded-full" />}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
 
-            <div className="rounded-xl border">
+            <TableWrapper>
                 <Table>
-                    <TableHeader>
+                    <TableHeader className="dark:bg-muted/50">
                         <TableRow className="hover:bg-transparent">
                             <TableHead>Event Name</TableHead>
                             <TableHead>Status</TableHead>
@@ -154,11 +177,11 @@ export default function SearchEvent({ events }: { events: Event[] }) {
                             <EmptyState type="event" colSpan={7} isSearching onClearFilters={clearFilters} />
                         ) : (
                             paginatedEvents.map((event) => (
-                                <TableRow key={event.id}>
+                                <TableRow key={event.id} className="hover:bg-muted/20 transition-colors">
                                     <TableCell>
                                         <div className="flex flex-col font-medium">
                                             <span>{event.title}</span>
-                                            <span className="text-xs text-zinc-500">{event.location}</span>
+                                            <span className="text-muted-foreground text-xs">{event.location}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell>
@@ -168,11 +191,21 @@ export default function SearchEvent({ events }: { events: Event[] }) {
                                     </TableCell>
 
                                     <TableCell>{event.clientName}</TableCell>
-                                    <TableCell>{formatDate(event.startDate)}</TableCell>
-                                    <TableCell>{formatDate(event.endDate)}</TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <CalendarIcon className="size-3" />
+                                            {formatDate(event.startDate)}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <CalendarIcon className="size-3" />
+                                            {formatDate(event.endDate)}
+                                        </div>
+                                    </TableCell>
                                     <TableCell>{formatUSD(event.budget)}</TableCell>
 
-                                    <TableCell className="text-right">
+                                    <TableCell className="pr-6 text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="icon">
@@ -202,7 +235,7 @@ export default function SearchEvent({ events }: { events: Event[] }) {
                 </Table>
 
                 <PaginatedTable currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage} />
-            </div>
+            </TableWrapper>
         </div>
     );
 }

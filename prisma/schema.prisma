@@ -111,7 +111,6 @@ enum ActivityType {
     VendorAdded
     VendorUpdated
     VendorPaid
-    EventArchived
 }
 
 enum PaymentType {

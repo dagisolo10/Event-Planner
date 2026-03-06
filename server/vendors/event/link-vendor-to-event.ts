@@ -1,6 +1,7 @@
 "use server";
 import { wrapAction } from "@/helper/action-wrapper";
 import prisma from "@/lib/config/prisma";
+import addActivity from "@/server/activity/create-activity";
 import authCheck from "@/server/auth/auth-check";
 import { revalidatePath } from "next/cache";
 
@@ -55,6 +56,12 @@ export default async function linkVendorToEvent(data: Data) {
             }
 
             return newEventVendor;
+        });
+
+        await addActivity({
+            type: "VendorAdded",
+            eventId: data.eventId,
+            message: `Strategic partnership formed with ${result.globalVendor.name}`,
         });
 
         revalidatePath(`/dashboard/events/${data.eventId}/vendors`);

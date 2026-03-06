@@ -1,11 +1,12 @@
+import "./globals.css";
 import type { Metadata } from "next";
-import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackClientApp } from "../stack/client";
-import { Manrope, Playfair_Display, Poppins } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import "./globals.css";
+import { StackProvider, StackTheme } from "@stackframe/stack";
 import ThemeProvider from "@/components/others/theme-provider";
+import { Manrope, Playfair_Display, Poppins } from "next/font/google";
+import Navbar from "@/components/navbar/navbar";
 
 const manrope = Manrope({
     subsets: ["latin"],
@@ -63,7 +64,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 <StackProvider app={stackClientApp}>
                     <StackTheme>
                         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-                            <TooltipProvider>{children}</TooltipProvider>
+                            <TooltipProvider>
+                                <main className="scrollbar-thin h-screen overflow-y-auto">
+                                    <div className="mx-auto max-w-11/12">
+                                        <Navbar />
+                                        <div className="pt-12 ">{children}</div>
+                                    </div>
+                                </main>
+                            </TooltipProvider>
                             <Toaster toastOptions={{ classNames: { description: "!text-current !opacity-100" } }} position="top-center" />
                         </ThemeProvider>
                     </StackTheme>

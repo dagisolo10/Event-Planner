@@ -8,11 +8,11 @@ export default async function proxy(request: NextRequest) {
     const publicRoutes = ["/login", "/register"];
     const protectedRoutes = ["/dashboard"];
 
-    const isPublic = publicRoutes.some((route) => path.startsWith(route)) || path === "/";
+    const isPublic = publicRoutes.some((route) => path.startsWith(route));
     const isProtected = protectedRoutes.some((route) => path.startsWith(route));
 
     if (isProtected && !user) return NextResponse.redirect(new URL("/", request.url));
-    if (isPublic && user) return NextResponse.redirect(new URL("/dashboard", request.url));
+    if (isPublic && user) return NextResponse.redirect(new URL("/", request.url));
 
     return NextResponse.next();
 }

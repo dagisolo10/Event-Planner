@@ -16,6 +16,7 @@ export default async function deleteEvent(id: string) {
 
             await trx.event.delete({ where: { id, userId } });
         });
+
         revalidatePath("/dashboard/events");
     }, "deleteEvent");
 }

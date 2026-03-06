@@ -1,46 +1,45 @@
 "use client";
-import { getRemainingTime } from "@/helper/helper-functions";
-import { Card, CardContent } from "../ui/card";
-import { Progress } from "../ui/progress";
 import { useEffect, useState } from "react";
+import { Card } from "../ui/card";
+import { Zap, MapPin, User, Calendar } from "lucide-react";
+import { format } from "date-fns";
+import { getRemainingTime } from "@/helper/helper-functions";
 import { getEventStatus } from "@/helper/get-status";
+import { cn } from "@/lib/utils";
 
-interface EventPulseProp {
-    startDate: Date;
-    endDate: Date;
+interface PulseProps {
+    taskPercentage: number;
     clientName: string;
     location: string;
-    taskPercentage: number;
+    startDate: Date;
+    endDate: Date;
 }
 
-export default function EventPulse({ startDate, endDate, location, clientName, taskPercentage }: EventPulseProp) {
+export default function EventPulse({ taskPercentage, clientName, location, startDate, endDate }: PulseProps) {
     const [timeRemaining, setTimeRemaining] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
     const status = getEventStatus(startDate, endDate);
 
     const statusConfig = {
         Upcoming: {
-            label: "Countdown to Launch",
-            subtext: `Finalizing details for ${clientName}`,
-            badge: "Upcoming",
-            color: "text-indigo-400",
-            pulse: "bg-indigo-400",
-        },
-
-        Ongoing: {
-            label: "Event is Currently Live",
-            subtext: "Real-time operations active",
-            badge: "Live Now",
-            color: "text-emerald-400",
+            badge: "Operation: Countdown",
+            text: "text-emerald-400",
             pulse: "bg-emerald-400",
+            glow: "shadow-emerald-500/20",
+            scan: "via-emerald-500",
         },
-
+        Ongoing: {
+            badge: "Operation: Live Now",
+            text: "text-blue-400",
+            pulse: "bg-blue-400",
+            glow: "shadow-blue-500/20",
+            scan: "via-blue-500",
+        },
         Completed: {
-            label: "Event Concluded",
-            subtext: `Archive generated for ${clientName}`,
-            badge: "Post-Event",
-            color: "text-rose-500",
-            pulse: "bg-rose-500",
+            badge: "Operation: Archived",
+            text: "text-muted-foreground",
+            pulse: "bg-zinc-600",
+            glow: "shadow-transparent",
+            scan: "via-zinc-500",
         },
     };
 
@@ -48,69 +47,111 @@ export default function EventPulse({ startDate, endDate, location, clientName, t
 
     useEffect(() => {
         if (status !== "Upcoming") return;
-
         const updateTime = () => setTimeRemaining(getRemainingTime(startDate));
-
         updateTime();
         const timer = setInterval(updateTime, 1000);
-
         return () => clearInterval(timer);
     }, [startDate, status]);
 
     return (
-        <Card className="overflow-hidden border-none bg-zinc-900 text-zinc-100 shadow-2xl">
-            <CardContent className="p-0">
-                <div className="flex items-center justify-between bg-zinc-800/50 px-6 py-3">
-                    <div className="flex items-center gap-2">
-                        <span className="relative flex size-2">
-                            <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${current.pulse}`} />
-                            <span className={`relative inline-flex size-2 rounded-full ${current.pulse}`} />
-                        </span>
-                        <span className={`text-ss font-bold tracking-[0.2em] uppercase ${current.color}`}>{current.badge}</span>
+        <Card className={cn("relative overflow-hidden border-zinc-800 bg-zinc-950 p-6 text-white shadow-2xl transition-all duration-700", current.glow)}>
+            <div className="pointer-events-none absolute inset-0 z-0 opacity-30">
+                <div className={cn(current.scan, "animate-scan absolute h-0.5 w-full bg-linear-to-r from-transparent to-transparent shadow-[0_0_15px_rgba(16,185,129,0.5)]")} />
+            </div>
+
+            <div className="relative z-10 flex flex-col gap-6">
+                <div className="flex items-center justify-between border-b border-white/5 pb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="relative flex size-2.5">
+                            <span className={cn("absolute inline-flex h-full w-full animate-ping rounded-full opacity-75", current.pulse)}></span>
+                            <span className={cn("relative inline-flex size-2.5 rounded-full", current.pulse)}></span>
+                        </div>
+
+                        <h2 className={cn("font-poppins text-xs font-black tracking-[0.3em] uppercase md:text-base", current.text)}>{current.badge}</h2>
                     </div>
-                    <span className="text-ss font-medium tracking-wider text-zinc-300 uppercase">{location}</span>
+
+                    <Zap className={cn("size-4 animate-pulse", current.text)} />
                 </div>
 
-                <div className="p-6">
-                    <p className="text-xs font-bold tracking-widest text-zinc-400 uppercase">{current.label}</p>
+                <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
+                    <div className="relative flex shrink-0 items-center justify-center">
+                        <svg className="size-28 -rotate-90">
+                            <circle cx="56" cy="56" r="52" stroke="currentColor" strokeWidth="2" fill="transparent" className="text-zinc-800" />
+                            <circle cx="56" cy="56" r="52" stroke="currentColor" strokeWidth="3" fill="transparent" strokeDasharray={327} strokeDashoffset={327 - (327 * taskPercentage) / 100} className="text-emerald-500 transition-all duration-1000 ease-out" strokeLinecap="round" />
+                        </svg>
 
-                    {status == "Upcoming" ? (
-                        <Countdown timeRemaining={timeRemaining} />
-                    ) : (
-                        <div className="my-2">
-                            <h4 className={`text-3xl font-black tracking-tight ${status === "Ongoing" ? "animate-pulse text-white" : "text-zinc-400"}`}>{status === "Ongoing" ? "Event is Live!" : "Event Successfully Closed"}</h4>
+                        <div className="absolute flex flex-col items-center">
+                            <span className="font-poppins text-2xl font-black">{Math.round(taskPercentage)}%</span>
+                            <span className="text-muted-foreground text-[8px] font-bold tracking-widest uppercase">Progress</span>
                         </div>
-                    )}
+                    </div>
 
-                    <p className="text-sm font-medium text-zinc-400">{current.subtext}</p>
-
-                    <div className="mt-6 space-y-2">
-                        <div className="flex justify-between text-xs font-medium">
-                            <span className="text-zinc-500">{status === "Completed" ? "Total Task Completion" : "Planning Progress"}</span>
-                            <span className={status === "Completed" ? "text-zinc-400" : "text-emerald-400"}>{taskPercentage.toFixed(1)}%</span>
-                        </div>
-                        <Progress className={`bg-zinc-800 ${status === "Completed" ? "[&>div]:bg-zinc-600" : "[&>div]:bg-emerald-500"}`} value={taskPercentage} />
+                    <div className="flex flex-1 flex-col items-center md:items-start">
+                        {status === "Upcoming" ? (
+                            <div className="flex items-baseline gap-3">
+                                <TimeUnit value={timeRemaining.days} label="Days" />
+                                <span className="self-center text-xl font-light text-zinc-600">:</span>
+                                <TimeUnit value={timeRemaining.hours} label="Hrs" />
+                                <span className="self-center text-xl font-light text-zinc-600">:</span>
+                                <TimeUnit value={timeRemaining.minutes} label="Mins" />
+                                <span className="self-center text-xl font-light text-zinc-600">:</span>
+                                <TimeUnit value={timeRemaining.seconds} label="Secs" color="text-emerald-400" />
+                            </div>
+                        ) : (
+                            <div className="space-y-1 text-center md:text-left">
+                                <h4 className={cn("font-poppins text-2xl font-black tracking-tight", status === "Ongoing" ? "animate-pulse text-white" : "text-muted-foreground")}>{status === "Ongoing" ? "LIVE OPERATIONS" : "EVENT ARCHIVED"}</h4>
+                                <p className="text-ss text-muted-foreground font-bold tracking-[0.2em] uppercase">Status: Nominal</p>
+                            </div>
+                        )}
                     </div>
                 </div>
-            </CardContent>
+
+                <div className="items-center flex justify-between gap-4">
+                    <InfoSlab icon={<User className="size-3" />} label="Principal" value={clientName} />
+                    <InfoSlab icon={<MapPin className="size-3" />} label="Location" value={location} />
+                </div>
+
+                <div className="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 p-3">
+                    <div className="flex items-center gap-3">
+                        <Calendar className={cn("size-4", current.text)} />
+                        <div className="flex flex-col">
+                            <span className="text-muted-foreground text-[8px] font-black tracking-widest uppercase">Timeline Window</span>
+                            <span className="text-xs font-bold text-zinc-300">
+                                {format(startDate, "MMM dd")} — {format(endDate, "MMM dd, yyyy")}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="h-8 w-px bg-zinc-800" />
+                    <div className="flex flex-col items-end">
+                        <span className="text-muted-foreground text-[8px] font-black tracking-widest uppercase">Confirmation</span>
+                        <span className={cn("text-[11px] font-bold", current.text)}>Verified</span>
+                    </div>
+                </div>
+            </div>
+
+            <div className={cn("pointer-events-none absolute -bottom-10 -left-10 size-32 blur-[80px] transition-colors duration-1000", status === "Ongoing" ? "bg-blue-500/10" : "bg-emerald-500/10")} />
         </Card>
     );
 }
 
-function Countdown({ timeRemaining }: { timeRemaining: { days: number; hours: number; minutes: number; seconds: number } }) {
+function TimeUnit({ value, label, color = "text-white" }: { value: number; label: string; color?: string }) {
     return (
-        <div className="my-2 flex items-baseline gap-2">
-            <h4 className="text-4xl font-black tracking-tighter">{timeRemaining.days}</h4>
-            <span className="text-sm font-bold text-zinc-500">Days</span>
+        <div className="flex flex-col items-center">
+            <span className={cn("font-poppins text-3xl font-black tracking-tighter", color)}>{String(value).padStart(2, "0")}</span>
+            <span className="text-muted-foreground text-[8px] font-bold tracking-widest uppercase">{label}</span>
+        </div>
+    );
+}
 
-            <h4 className="ml-2 text-4xl font-black tracking-tighter">{timeRemaining.hours}</h4>
-            <span className="text-sm font-bold text-zinc-500">{timeRemaining.hours > 1 ? "Hrs" : "Hr"}</span>
-
-            <h4 className="text-4xl font-black tracking-tighter">{timeRemaining.minutes}</h4>
-            <span className="text-sm font-bold text-zinc-500">Min</span>
-
-            <h4 className="ml-1 text-4xl font-black tracking-tighter text-emerald-500">{timeRemaining.seconds}</h4>
-            <span className="text-sm font-bold text-zinc-500">Sec</span>
+function InfoSlab({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+    return (
+        <div className="space-y-1">
+            <div className="text-muted-foreground flex items-center gap-1.5">
+                {icon}
+                <span className="text-[9px] font-black uppercase">{label}</span>
+            </div>
+            <p className="font-poppins truncate text-sm font-bold text-zinc-200">{value}</p>
         </div>
     );
 }

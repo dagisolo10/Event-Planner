@@ -1,74 +1,109 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "../ui/button";
-import { DropdownMenuSeparator } from "../ui/dropdown-menu";
 import { ThemeToggle } from "../others/theme-toggle";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import Sidebar from "./sidebar";
+import { UserButton } from "@stackframe/stack";
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
+import { stackClientApp } from "@/stack/client";
+import { useEffect, useState } from "react";
 
-const navItems = [
-    { label: "Register", href: "/register" },
-    { label: "Features", href: "#features" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "About Us", href: "#about" },
-];
-
-export default function GemNav() {
-    const [isOpen, setIsOpen] = useState(false);
+export default function Navbar() {
+    const path = usePathname();
+    const [user, setUser] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        if (isOpen) document.body.style.overflow = "hidden";
-        else document.body.style.overflow = "unset";
-    }, [isOpen]);
+        stackClientApp.getUser().then((data) => setUser(data?.id));
+    }, []);
+
+    const publicLinks = [
+        { href: "/pricing", label: "Pricing" },
+        { href: "/features", label: "Features" },
+    ];
+
+    const protectedNavLinks = [
+        { href: "/dashboard/vendors/directory", label: "Vendors" },
+        { href: "/dashboard/finance", label: "Finance" },
+    ];
+
+    const protectedEventSection = {
+        trigger: "Event",
+        items: [
+            { label: "Events", href: "/dashboard/events" },
+            { label: "Add Event", href: "/dashboard/events/new" },
+        ],
+    };
+
+    const navLinks = user ? [...protectedNavLinks, ...publicLinks] : publicLinks;
 
     return (
-        <div className="z-100">
-            <Button variant="ghost" onClick={() => setIsOpen(!isOpen)} className="relative z-110 h-10 pr-4">
-                <div className="flex flex-col gap-1.5">
-                    <div className="flex flex-col gap-1">
-                        <motion.span animate={{ rotate: isOpen ? 45 : 0, y: isOpen ? 6 : 0 }} className="h-0.5 w-5 bg-current" />
-                        <motion.span animate={{ opacity: isOpen ? 0 : 1 }} className="h-0.5 w-5 bg-current" />
-                        <motion.span animate={{ rotate: isOpen ? -45 : 0, y: isOpen ? -6 : 0 }} className="h-0.5 w-5 bg-current" />
+        <header className="sticky inset-x-0 top-4 z-50 mx-auto mb-4 md:max-w-5xl">
+            <nav className="flex items-center gap-6 rounded-full border border-zinc-200 bg-white/80 px-4 py-2 shadow-2xl shadow-zinc-200/50 backdrop-blur-md transition-colors duration-300 dark:border-white/10 dark:bg-zinc-900/50 dark:shadow-black/40">
+                <Link href="/" className="flex items-center gap-2.5 transition-opacity duration-300 hover:opacity-60">
+                    <Image src="/icon.svg" alt="App icon" width={28} height={28} className="drop-shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
+                    <span className="text-lg font-bold text-zinc-950 dark:text-white">EventSync</span>
+                </Link>
+
+                <div className="text-muted-foreground hidden items-center gap-6 border-l pl-4 text-sm font-medium md:flex">
+                    <NavLink href="/dashboard" label="Dashboard" path={path} />
+
+                    {user && (
+                        <NavigationMenu viewport={false}>
+                            <NavigationMenuList>
+                                <NavigationMenuItem>
+                                    <NavigationMenuTrigger>{protectedEventSection.trigger}</NavigationMenuTrigger>
+                                    <NavigationMenuContent>
+                                        <div className="w-36">
+                                            {protectedEventSection.items.map((item, itemIndex) => (
+                                                <NavigationMenuLink href={item.href} key={itemIndex}>
+                                                    {item.label}
+                                                </NavigationMenuLink>
+                                            ))}
+                                        </div>
+                                    </NavigationMenuContent>
+                                </NavigationMenuItem>
+                            </NavigationMenuList>
+                        </NavigationMenu>
+                    )}
+
+                    {navLinks.map((nav) => (
+                        <NavLink href={nav.href} label={nav.label} path={path} key={nav.href} />
+                    ))}
+                </div>
+
+                <div className="ml-auto md:hidden">
+                    <Sidebar />
+                </div>
+
+                <div className="ml-auto hidden items-center gap-2 md:flex">
+                    {!user && (
+                        <>
+                            <Button className="text-zinc-600 transition-colors hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white" variant="ghost" asChild>
+                                <Link href="/login">Login</Link>
+                            </Button>
+
+                            <Button className="bg-primary hover:bg-primary/90 shadow-primary/20 rounded-full px-6 text-white shadow-lg transition-all duration-300 active:scale-95" asChild>
+                                <Link href="/register">Get Started</Link>
+                            </Button>
+                        </>
+                    )}
+                    <UserButton />
+
+                    <div className="ml-2 border-l border-zinc-200 pl-2 dark:border-white/10">
+                        <ThemeToggle />
                     </div>
                 </div>
-            </Button>
-            <AnimatePresence>
-                {isOpen && (
-                    <div className="fixed inset-0 z-100 flex justify-end">
-                        <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }} className="bg-primary/10 fixed inset-0 backdrop-blur-md" />
-                        <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ duration: 0.6, delay: 0.1, ease: [0.76, 0, 0.24, 1] }} className="fixed inset-0 bg-zinc-100 md:left-1/3 dark:bg-zinc-900" />
-                        <motion.div
-                            initial={{ x: "100%" }}
-                            animate={{ x: 0 }}
-                            exit={{ x: "100%" }}
-                            transition={{ duration: 0.6, delay: 0.2, ease: [0.76, 0, 0.24, 1] }}
-                            className="bg-background relative flex h-screen w-full flex-col p-8 shadow-2xl md:w-[65%] md:p-12 lg:w-[45%]"
-                        >
-                            <div className="flex items-center gap-3">
-                                <Image src="/icon.svg" alt="App icon" width={32} height={32} />
-                                <span className="text-3xl font-bold tracking-tighter italic">EventSync</span>
-                            </div>
+            </nav>
+        </header>
+    );
+}
 
-                            <DropdownMenuSeparator className="my-8 opacity-50" />
-
-                            <nav className="flex flex-col gap-6">
-                                {navItems.map((item, i) => (
-                                    <motion.div key={item.label} initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5 + i * 0.1 }}>
-                                        <Link href={item.href} onClick={() => setIsOpen(false)} className="group flex items-center gap-4">
-                                            <span className="text-primary font-mono text-xl">0{i + 1}</span>
-                                            <span className="group-hover:text-primary text-4xl font-bold transition-all duration-300 group-hover:pl-4 md:text-5xl">{item.label}</span>
-                                        </Link>
-                                    </motion.div>
-                                ))}
-                            </nav>
-                            <div className="mt-auto">
-                                <ThemeToggle />
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
-        </div>
+function NavLink({ path, label, href }: { label: string; href: string; path: string }) {
+    return (
+        <Link href={href} className={`${path === href ? "border-b-2 border-white text-zinc-950 dark:text-white" : ""} transition-colors hover:text-zinc-950 dark:hover:text-white`}>
+            {label}
+        </Link>
     );
 }

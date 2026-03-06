@@ -39,7 +39,7 @@ export default async function Budgeting() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <FinanceStatCard title="Total Revenue" value={budget ?? 0} subValue={`Collected: ${formatUSD(collected ?? 0)}`} icon={TrendingUp} color="emerald" />
                 <FinanceStatCard title="Vendor Liabilities" value={liability ?? 0} subValue={`Paid Out: ${formatUSD(paidOut ?? 0)}`} icon={TrendingDown} color="rose" />
                 <FinanceStatCard title="Cash on Hand" value={cashOnHand ?? 0} subValue="Liquid funds in escrow" icon={Wallet} color="blue" />

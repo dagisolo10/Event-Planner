@@ -87,7 +87,7 @@ export default function EmptyState({ type, colSpan, isSearching, onClearFilters,
                 );
 
             case "globalVendor":
-                return <CreateGlobalVendor onVendorCreated={onVendorCreated}/>;
+                return <CreateGlobalVendor onVendorCreated={onVendorCreated} />;
 
             case "payment":
                 return <PaymentModal events={events || []} eventVendors={eventVendors || []} />;

@@ -1,122 +1,84 @@
 "use client";
-import { Sidebar as SidebarComp, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem } from "@/components/ui/sidebar";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Calendar, Truck, DollarSign, CheckCircle2, ChevronRight, LayoutDashboard, PlusCircle, LucideProps, Users } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ForwardRefExoticComponent, RefAttributes } from "react";
-import { IconCurrencyDollar } from "@tabler/icons-react";
-import { cn } from "@/lib/utils";
-import { UserButton } from "@stackframe/stack";
+import Image from "next/image";
+import { Button } from "../ui/button";
+import { DropdownMenuSeparator } from "../ui/dropdown-menu";
 import { ThemeToggle } from "../others/theme-toggle";
+import { stackClientApp } from "@/stack/client";
 
-export const eventsSubItems = [
-    { href: "/dashboard/events", label: "All Events", icon: Calendar },
-    { href: "/dashboard/events/new", label: "New Event", icon: PlusCircle },
-];
+export default function Sidebar() {
+    const [isOpen, setIsOpen] = useState(false);
+    const [user, setUser] = useState<string | undefined>(undefined);
 
-export const vendorSubItems = [{ href: "/dashboard/vendors/directory", label: "Directory", icon: Users }];
+    useEffect(() => {
+        stackClientApp.getUser().then((data) => setUser(data?.id));
+    }, []);
 
-export const financialSubItems = [{ href: "/dashboard/finance", label: "Finance", icon: IconCurrencyDollar }];
+    const loggedInNavItems = [
+        { label: "Dashboard", href: "/dashboard" },
+        { label: "Events", href: "/dashboard/events" },
+        { label: "Vendors", href: "/dashboard/vendors/directory" },
+        { label: "Finance", href: "/dashboard/finance" },
+        { label: "Pricing", href: "/pricing" },
+    ];
 
-export function Sidebar() {
-    const pathname = usePathname();
+    const noUserNavItems = [
+        { label: "Features", href: "/features" },
+        { label: "Pricing", href: "/pricing" },
+        { label: "Login", href: "/login" },
+        { label: "Register", href: "/register" },
+    ];
 
-    return (
-        <SidebarComp>
-            <SidebarHeader>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton className="hover:text-primary text-primary! text-xl font-bold hover:bg-transparent" asChild>
-                            <Link href="/dashboard">EventSync</Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarHeader>
+    const navItems = user ? loggedInNavItems : noUserNavItems;
 
-            <SidebarContent>
-                <SidebarGroup>
-                    <SidebarMenu>
-                        <SidebarLink label="Dashboard" pathname={pathname} href="/dashboard" icon={LayoutDashboard} />
-                        <SidebarLink label="Tasks" pathname={pathname} href="/dashboard/tasks" icon={CheckCircle2} />
-
-                        <CollapsibleLink trigger="Events" icon={Calendar} links={eventsSubItems} pathname={pathname} />
-                        <CollapsibleLink trigger="Vendors" icon={Truck} links={vendorSubItems} pathname={pathname} />
-                        <CollapsibleLink trigger="Financial" icon={DollarSign} links={financialSubItems} pathname={pathname} />
-                    </SidebarMenu>
-                </SidebarGroup>
-            </SidebarContent>
-
-            <SidebarFooter>
-                <ThemeToggle />
-                <UserButton showUserInfo />
-            </SidebarFooter>
-        </SidebarComp>
-    );
-}
-
-interface Links {
-    href: string;
-    label: string;
-    icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
-}
-
-interface CollapsibleProp {
-    pathname: string;
-    links: Links[];
-    icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
-    trigger: string;
-}
-
-function CollapsibleLink({ icon: Icon, trigger, links, pathname }: CollapsibleProp) {
-    return (
-        <Collapsible asChild className="group/collapsible">
-            <SidebarMenuItem>
-                <CollapsibleTrigger asChild className={cn("text-zinc-600 transition-colors", "data-[state=open]:bg-sidebar-accent/70 data-[state=open]:text-sidebar-accent-foreground!")}>
-                    <SidebarMenuButton tooltip={trigger}>
-                        <Icon />
-                        <span>{trigger}</span>
-                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                    </SidebarMenuButton>
-                </CollapsibleTrigger>
-
-                <CollapsibleContent>
-                    <SidebarMenuSub>
-                        {links.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.href}>
-                                <SidebarMenuSubButton asChild isActive={pathname === subItem.href} size="sm">
-                                    <Link href={subItem.href}>
-                                        <subItem.icon />
-                                        <span>{subItem.label}</span>
-                                    </Link>
-                                </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                        ))}
-                    </SidebarMenuSub>
-                </CollapsibleContent>
-            </SidebarMenuItem>
-        </Collapsible>
-    );
-}
-
-interface SidebarProp {
-    label: string;
-    pathname: string;
-    href: string;
-    icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
-}
-
-function SidebarLink({ label, pathname, href, icon }: SidebarProp) {
-    const Icon = icon;
+    useEffect(() => {
+        if (isOpen) document.body.style.overflow = "hidden";
+        else document.body.style.overflow = "unset";
+    }, [isOpen]);
 
     return (
-        <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === href}>
-                <Link href={href}>
-                    <Icon />
-                    <span>{label}</span>
-                </Link>
-            </SidebarMenuButton>
-        </SidebarMenuItem>
+        <div className="z-100">
+            <Button variant="ghost" onClick={() => setIsOpen(!isOpen)} className="relative z-110 h-10 pr-4">
+                <div className="flex flex-col gap-1.5">
+                    <div className="flex flex-col gap-1">
+                        <motion.span animate={{ rotate: isOpen ? 45 : 0, y: isOpen ? 6 : 0 }} className="h-0.5 w-5 bg-current" />
+                        <motion.span animate={{ opacity: isOpen ? 0 : 1 }} className="h-0.5 w-5 bg-current" />
+                        <motion.span animate={{ rotate: isOpen ? -45 : 0, y: isOpen ? -6 : 0 }} className="h-0.5 w-5 bg-current" />
+                    </div>
+                </div>
+            </Button>
+            <AnimatePresence>
+                {isOpen && (
+                    <div className="fixed inset-0 z-100 flex justify-end">
+                        <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }} className="bg-primary/10 fixed inset-0 backdrop-blur-md" />
+                        <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ duration: 0.6, delay: 0.1, ease: [0.76, 0, 0.24, 1] }} className="fixed inset-0 bg-zinc-100 md:left-1/3 dark:bg-zinc-900" />
+                        <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ duration: 0.6, delay: 0.2, ease: [0.76, 0, 0.24, 1] }} className="bg-background relative flex h-screen w-full flex-col p-8 shadow-2xl md:w-[65%] md:p-12 lg:w-[45%]">
+                            <div className="flex items-center gap-3">
+                                <Image src="/icon.svg" alt="App icon" width={32} height={32} />
+                                <span className="text-3xl font-bold tracking-tighter italic">EventSync</span>
+                            </div>
+
+                            <DropdownMenuSeparator className="my-8 opacity-50" />
+
+                            <nav className="flex flex-col gap-6">
+                                {navItems.map((item, i) => (
+                                    <motion.div key={item.label} initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5 + i * 0.1 }}>
+                                        <Link href={item.href} onClick={() => setIsOpen(false)} className="group flex items-center gap-4">
+                                            <span className="text-primary font-mono text-xl">0{i + 1}</span>
+                                            <span className="group-hover:text-primary text-4xl font-bold transition-all duration-300 group-hover:pl-4 md:text-5xl">{item.label}</span>
+                                        </Link>
+                                    </motion.div>
+                                ))}
+                            </nav>
+                            <div className="mt-auto">
+                                <ThemeToggle />
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+        </div>
     );
 }

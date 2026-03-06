@@ -187,6 +187,27 @@
         transform: translateX(4px);
     }
 }
+
 .animate-shake {
     animation: shake 0.2s ease-in-out 0s 2;
+}
+
+@utility text-gradient {
+    background-image: linear-gradient(to right, var(--color-primary), oklch(0.585 0.233 300));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+@keyframes scan {
+    from {
+        top: 0%;
+    }
+    to {
+        top: 100%;
+    }
+}
+
+@utility animate-scan {
+    animation: scan 4s linear infinite;
 }
