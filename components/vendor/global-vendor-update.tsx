@@ -87,15 +87,23 @@ export function UpdateGlobalVendor({ globalVendor, open, setOpen }: EditProp) {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-106.25">
-                <DialogHeader>
-                    <DialogTitle className="text-xl">Edit Partner Profile</DialogTitle>
-                    <DialogDescription>
-                        Update the master information for <strong>{globalVendor.name}</strong>.
-                    </DialogDescription>
-                </DialogHeader>
-
+            <DialogContent className="sm:max-w-125">
                 <form onSubmit={handleEdit}>
+                    <DialogHeader className="relative border-b border-zinc-100 pb-4 dark:border-zinc-800">
+                        <div className="absolute top-0 -left-6 h-full w-1 bg-amber-500" />
+                        <div className="space-y-1">
+                            <span className="text-[10px] font-bold tracking-[0.3em] text-zinc-400 uppercase">Master Directory</span>
+                            <DialogTitle className="space-x-1 text-xl font-black tracking-tight uppercase">
+                                {/* Modify / <span className="text-zinc-600 dark:text-zinc-300">Partner Profile</span> */}
+                                <span className="text-accent-foreground">Modify /</span>
+                                <span className="text-amber-600 dark:text-amber-400">Partner Profile</span>
+                            </DialogTitle>
+                            <DialogDescription className="text-muted-foreground text-[13px] leading-relaxed font-medium">
+                                Updating core identity for <strong className="text-foreground">{globalVendor.name}</strong>. These changes will reflect across all associated events.
+                            </DialogDescription>
+                        </div>
+                    </DialogHeader>
+
                     <FieldGroup className="grid gap-5 py-6">
                         <Field id="name" className="grid gap-2">
                             <Label htmlFor="name" className="flex items-center gap-2">
@@ -121,19 +129,21 @@ export function UpdateGlobalVendor({ globalVendor, open, setOpen }: EditProp) {
                             </Field>
                         </FieldGroup>
 
-                        <Field className="grid gap-2">
-                            <Label htmlFor="email" className="flex items-center gap-2">
-                                <Mail className="text-muted-foreground size-3.5" /> Business Email
-                            </Label>
-                            <Input id="email" name="email" type="email" defaultValue={globalVendor.email || ""} placeholder="hello@vendor.com" />
-                        </Field>
+                        <FieldGroup className="grid grid-cols-2 gap-4">
+                            <Field className="grid gap-2">
+                                <Label htmlFor="email" className="flex items-center gap-2">
+                                    <Mail className="text-muted-foreground size-3.5" /> Business Email
+                                </Label>
+                                <Input id="email" name="email" type="email" defaultValue={globalVendor.email || ""} placeholder="hello@vendor.com" />
+                            </Field>
 
-                        <Field className="grid gap-2">
-                            <Label htmlFor="website" className="flex items-center gap-2">
-                                <Globe className="text-muted-foreground size-3.5" /> Website
-                            </Label>
-                            <Input id="website" name="website" type="url" defaultValue={globalVendor.website || ""} placeholder="https://vendor.com" />
-                        </Field>
+                            <Field className="grid gap-2">
+                                <Label htmlFor="website" className="flex items-center gap-2">
+                                    <Globe className="text-muted-foreground size-3.5" /> Website
+                                </Label>
+                                <Input id="website" name="website" type="url" defaultValue={globalVendor.website || ""} placeholder="https://vendor.com" />
+                            </Field>
+                        </FieldGroup>
                     </FieldGroup>
 
                     <div className="flex justify-end gap-3">
@@ -141,8 +151,8 @@ export function UpdateGlobalVendor({ globalVendor, open, setOpen }: EditProp) {
                             Cancel
                         </Button>
 
-                        <Button disabled={loading}>
-                            {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
+                        <Button disabled={loading} variant="ghost" className="bg-amber-600 hover:bg-amber-600/50!">
+                            {loading && <Loader2 className="size-4 animate-spin" />}
                             Save Changes
                         </Button>
                     </div>

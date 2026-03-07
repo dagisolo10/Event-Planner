@@ -185,7 +185,7 @@ export default function SearchEvent({ events }: { events: Event[] }) {
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant="outline" className={statusColors.event[getEventStatus(event.startDate, event.endDate)]}>
+                                        <Badge variant="ghost" className={statusColors.event[getEventStatus(event.startDate, event.endDate)]}>
                                             {getEventStatus(event.startDate, event.endDate)}
                                         </Badge>
                                     </TableCell>

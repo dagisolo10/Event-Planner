@@ -9,9 +9,8 @@ export const paymentCompletionProgressBarColor = (paymentCompletion: number | un
 
     if (paymentCompletion === 100) return "[&>div]:bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]";
     if (paymentCompletion > 100) return "[&>div]:bg-rose-600 animate-pulse";
-    if (paymentCompletion >= 90) return "[&>div]:bg-emerald-400/80";
-    if (paymentCompletion >= 50) return "[&>div]:bg-amber-400";
-    if (paymentCompletion > 0) return "[&>div]:bg-zinc-400";
+    if (paymentCompletion >= 40) return "[&>div]:bg-amber-400";
+    if (paymentCompletion > 0) return "[&>div]:bg-zinc-500";
 
     return "[&>div]:bg-zinc-800"; // Zero
 };
@@ -29,6 +28,11 @@ export const badgeColor = (isOverBudget: boolean, percentage: number) => {
 export const statusColors = {
     // Event
     event: {
+        Completed: "text-emerald-500",
+        Ongoing: "text-amber-500",
+        Upcoming: "text-blue-500",
+    },
+    events: {
         Completed: "bg-emerald-100 dark:bg-transparent text-emerald-600 border-emerald-300 dark:border-emerald-700",
         Ongoing: "bg-amber-100 dark:bg-transparent text-amber-600 border-amber-300 dark:border-amber-700",
         Upcoming: "bg-blue-100 dark:bg-transparent text-blue-600 border-blue-300 dark:border-blue-700",
@@ -55,17 +59,24 @@ export const statusColors = {
 
     // Task
     task: {
-        Done: "bg-emerald-100 dark:bg-transparent text-emerald-600 border-emerald-300 dark:border-emerald-500",
-        Pending: "bg-amber-100 dark:bg-transparent text-amber-600 border-amber-300 dark:border-amber-500",
-        InProgress: "bg-sky-100 dark:bg-transparent text-sky-600 border-sky-300 dark:border-sky-500",
-        Overdue: "bg-rose-100 dark:bg-transparent text-rose-600 border-rose-300 dark:border-rose-500",
+        Done: "text-emerald-500",
+        Pending: "text-amber-500",
+        InProgress: "text-sky-500",
+        Overdue: "text-rose-500",
+    },
+
+    taskDot: {
+        Done: "bg-emerald-600",
+        Pending: "bg-amber-600",
+        InProgress: "bg-sky-600",
+        Overdue: "bg-rose-600",
     },
 
     priority: {
-        Urgent: "bg-rose-100 dark:bg-transparent text-rose-600 border-rose-300 dark:border-rose-700",
-        High: "bg-orange-100 dark:bg-transparent text-orange-600 border-orange-300 dark:border-orange-700",
-        Medium: "bg-amber-100 dark:bg-transparent text-amber-600 border-amber-300 dark:border-amber-700",
-        Low: "bg-blue-100 dark:bg-transparent text-blue-600 border-blue-300 dark:border-blue-700",
+        Urgent: "bg-rose-600",
+        High: "bg-orange-600",
+        Medium: "bg-amber-600",
+        Low: "bg-blue-6700",
     },
 
     // Payment

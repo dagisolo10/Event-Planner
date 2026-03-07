@@ -34,7 +34,7 @@ export default function StatCard({ icon: Icon, label, value, subValue, color = "
                     <div className={`grid size-11 place-items-center rounded-xl border transition-all duration-500 group-hover:scale-110 group-hover:shadow-lg ${styleParts[0]} ${styleParts[1]} bg-white dark:bg-zinc-950`}>
                         <Icon className="size-5" />
                     </div>
-                    <span className="font-poppins text-ss font-bold tracking-[0.2em] text-zinc-400 uppercase">{label}</span>
+                    <span className="font-poppins text-[10px] font-bold tracking-[0.2em] text-zinc-400 uppercase">{label}</span>
                 </div>
 
                 <div className="space-y-1.5">

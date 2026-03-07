@@ -37,7 +37,7 @@ export function LinkVendorForEvent({ eventId, eventTitle, eventVendors, globalVe
 
     const selectedVendorObj = globalVendors.find((vendor) => vendor.id === selectedVendorId);
 
-    const isControlled = propOpen !== undefined && propSetOpen !== undefined; // empty state button
+    const isControlled = propOpen !== undefined && propSetOpen !== undefined;
     const isOpen = isControlled ? propOpen : internalOpen;
     const handleOpenChange = (val: boolean) => {
         if (isControlled) propSetOpen(val);
@@ -142,16 +142,25 @@ export function LinkVendorForEvent({ eventId, eventTitle, eventVendors, globalVe
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             {mainButton && (
                 <DialogTrigger asChild>
-                    <Button className="gap-2">
-                        <Plus className="size-4" /> Add Vendor
+                    <Button className="group relative flex items-center gap-2 overflow-hidden bg-zinc-900 px-4 py-2 font-semibold text-white transition-all hover:bg-zinc-800 active:scale-95 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200">
+                        <Plus className="size-4 transition-transform duration-300 group-hover:rotate-90" />
+                        <span>Hire Vendor</span>
+                        <span className="via-background/20 absolute inset-0 -translate-x-full bg-linear-to-r from-transparent to-transparent transition-transform duration-500 group-hover:translate-x-full" />
                     </Button>
                 </DialogTrigger>
             )}
 
             <DialogContent className="gap-1 sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Add Vendor to {eventTitle || "Event"}</DialogTitle>
-                    <DialogDescription>Select a vendor from the list below to hire them for this event.</DialogDescription>
+                <DialogHeader className="relative border-b border-zinc-300 pb-4 dark:border-zinc-800">
+                    <div className="bg-primary absolute top-0 -left-6 h-full w-0.5" />
+
+                    <div className="space-y-0.5">
+                        <DialogTitle className="space-x-1 text-xl font-black tracking-tight uppercase">
+                            <span className="text-accent-foreground">Add Vendor /</span>
+                            <span className="text-primary max-w-60 truncate">{eventTitle}</span>
+                        </DialogTitle>
+                        <DialogDescription className="text-muted-foreground text-xs font-medium tracking-widest uppercase">Procurement & Contract Assignment</DialogDescription>
+                    </div>
                 </DialogHeader>
 
                 <form onSubmit={handleAddVendor}>
@@ -184,7 +193,7 @@ export function LinkVendorForEvent({ eventId, eventTitle, eventVendors, globalVe
                                             {query === "" && availableVendors.length === 0 && globalVendors.length > 0 && (
                                                 <div className="flex flex-col items-center border-b p-6 text-center" onClick={(e) => e.stopPropagation()}>
                                                     <p className="mb-1 text-sm font-medium">All vendors are already hired.</p>
-                                                    <p className="text-muted-foreground mb-4 text-xs">Need someone else?</p>
+                                                    <p className="text-muted-foreground mb-2 text-xs">Need someone else?</p>
                                                     <CreateGlobalVendor onVendorCreated={handleOnVendorCreated} />
                                                 </div>
                                             )}

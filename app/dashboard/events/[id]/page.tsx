@@ -47,10 +47,12 @@ export default async function EventDetailsPage({ params }: { params: Promise<Par
 
     return (
         <main className="space-y-10 pb-16">
-            <header className="flex flex-col justify-between gap-8 border-b border-zinc-200/60 pb-10 md:flex-row md:items-end dark:border-zinc-800/60">
+            <header className="relative flex flex-col justify-between gap-8 border-b border-zinc-200/60 pb-10 md:flex-row md:items-end dark:border-zinc-800/60">
+                <div className="bg-primary/5 pointer-events-none absolute -top-24 -left-24 hidden size-96 blur-[120px] dark:block" />
+
                 <div className="space-y-6">
                     <div className="flex items-center gap-2 overflow-hidden">
-                        <div className="bg-primary/10 text-primary text-ss flex items-center gap-1.5 rounded-full px-3 py-1 font-black tracking-widest uppercase">
+                        <div className="bg-primary/10 text-primary flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-black tracking-widest uppercase">
                             <Sparkles className="size-3" />
                             Prestige Event
                         </div>
@@ -59,10 +61,12 @@ export default async function EventDetailsPage({ params }: { params: Promise<Par
                     </div>
 
                     <div className="space-y-2">
-                        <h1 className="font-poppins text-4xl font-black tracking-tight md:text-6xl lg:text-7xl">{event.title}</h1>
+                        <h1 className="font-poppins text-4xl tracking-tight md:text-6xl lg:text-7xl">{event.title}</h1>
 
                         <div className="flex flex-wrap items-center gap-3">
-                            <Badge className={`text-ss! animate-pulse shadow-lg md:text-xs ${statusColors.event[eventStatus]}`}>{eventStatus}</Badge>
+                            <Badge variant="outline" className={`animate-pulse shadow-lg md:text-xs ${statusColors.event[eventStatus]}`}>
+                                {eventStatus}
+                            </Badge>
 
                             <Badge variant="outline" className="flex items-center gap-2 px-3 py-1">
                                 <span className="relative flex size-1.5">
@@ -70,7 +74,7 @@ export default async function EventDetailsPage({ params }: { params: Promise<Par
                                     <span className={`relative inline-flex size-1.5 rounded-full ${statusColors.eventDot[eventStatus]}`} />
                                 </span>
 
-                                <span className="text-ss text-muted-foreground font-black tracking-widest uppercase">Live Intelligence</span>
+                                <span className="text-muted-foreground text-[10px] font-black tracking-widest uppercase">Live Intelligence</span>
                             </Badge>
                         </div>
                     </div>
@@ -98,10 +102,13 @@ export default async function EventDetailsPage({ params }: { params: Promise<Par
 
                         <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 shadow-2xl">
                             <ExportButton eventId={id} />
+
                             <DropdownMenuSeparator />
+
                             <Link href={`/dashboard/events/${event.id}/edit`}>
-                                <DropdownMenuItem className="rounded-lg py-3 font-semibold">Edit Event Details</DropdownMenuItem>
+                                <DropdownMenuItem>Edit Event Details</DropdownMenuItem>
                             </Link>
+
                             <UniversalDeleteDialog type="event" id={event.id} name={event.title} />
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -134,15 +141,15 @@ export default async function EventDetailsPage({ params }: { params: Promise<Par
                     </section>
 
                     <section className="space-y-6">
-                        <div className="flex flex-col items-start md:flex-row md:items-center justify-between">
+                        <div className="flex flex-col items-start justify-between md:flex-row md:items-center">
                             <h3 className="text-2xl font-bold tracking-tight">Active Milestones</h3>
 
-                            <Link href={`/dashboard/events/${event.id}/tasks`} className="hover:text-primary text-muted-foreground text-xs font-bold tracking-widest uppercase">
+                            <Link href={`/dashboard/events/${event.id}/tasks`} className="hover:text-primary text-muted-foreground text-xs font-bold tracking-widest uppercase transition-colors duration-300">
                                 Expand Timeline →
                             </Link>
                         </div>
 
-                        <div className="grid gap-4">
+                        <div className="">
                             {totalTasksCount === 0 ? (
                                 <div className="flex flex-col items-center justify-center rounded-[2rem] border border-dashed py-16 text-center">
                                     <PlusCircle className="mb-4 size-10 text-zinc-300" />
@@ -157,7 +164,7 @@ export default async function EventDetailsPage({ params }: { params: Promise<Par
                                     <p className="text-muted-foreground text-sm">All current milestones have been successfully cleared.</p>
                                 </div>
                             ) : (
-                                activeTasks.slice(0, 5).map((task) => <TimelineItem key={task.id} time={formatDate(task.dueDate)} title={task.title} status={task.status as TaskStatus} />)
+                                activeTasks.slice(0, 5).map((task, idx) => <TimelineItem isFirst={idx === 0} isLast={idx === 4 || idx === activeTasks.length - 1} key={task.id} time={formatDate(task.dueDate)} title={task.title} status={task.status as TaskStatus} />)
                             )}
                         </div>
                     </section>
@@ -173,9 +180,9 @@ export default async function EventDetailsPage({ params }: { params: Promise<Par
                         {activity.length === 0 ? (
                             <div className="text-muted-foreground rounded-2xl border border-dashed p-8 text-center text-sm font-medium">Synchronizing activity logs...</div>
                         ) : (
-                            <div className="scrollbar-thin dark:scrollbar-thumb-muted dark:scrollbar-track-accent max-h-136 space-y-4 overflow-y-auto pr-2">
-                                {activity.map((item) => (
-                                    <ActivityCard item={item} key={item.id} />
+                            <div className="scrollbar-thin dark:scrollbar-thumb-muted dark:scrollbar-track-accent max-h-136 overflow-y-auto pr-2">
+                                {activity.map((item, idx) => (
+                                    <ActivityCard isFirst={idx === 0} isLast={idx === activity.length - 1} item={item} key={item.id} />
                                 ))}
                             </div>
                         )}
@@ -186,7 +193,7 @@ export default async function EventDetailsPage({ params }: { params: Promise<Par
                     <EventPulse taskPercentage={taskCompletion} clientName={event.clientName} location={event.location} startDate={event.startDate} endDate={event.endDate} />
 
                     <div className="space-y-4">
-                        <h3 className="text-ss font-black tracking-[0.3em] text-zinc-400 uppercase">Capital Management</h3>
+                        <h3 className="text-[10px] font-black tracking-[0.3em] text-zinc-400 uppercase">Capital Management</h3>
                         <BudgetTracker utilizationPercentage={utilizationPercentage} remainingBudget={remainingBudget} isOverBudget={isOverBudget} startDate={event.startDate} endDate={event.endDate} />
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

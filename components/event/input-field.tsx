@@ -31,7 +31,7 @@ export function InputField({ label, id, name, type = "text", icon: Icon, default
                     {label}
                 </Label>
                 {isHighBudget && (
-                    <span className="text-ss flex animate-pulse items-center gap-1 font-black tracking-widest text-amber-500 uppercase">
+                    <span className="flex animate-pulse items-center gap-1 text-[10px] font-black tracking-widest text-amber-500 uppercase">
                         <Sparkles className="size-3" /> Prestige Tier
                     </span>
                 )}

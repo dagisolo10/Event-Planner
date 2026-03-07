@@ -87,17 +87,27 @@ export function CreateGlobalVendor({ onVendorCreated }: Props) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="gap-2">
-                    <Plus className="size-4" />
-                    Create new global vendor
+                <Button className="group relative flex items-center gap-2 overflow-hidden bg-zinc-900 px-4 py-2 font-semibold text-white transition-all hover:bg-zinc-800 active:scale-95 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200">
+                    <Plus className="size-4 transition-transform duration-300 group-hover:rotate-90" />
+                    <span>Create new global vendor</span>
+                    <span className="via-background/20 absolute inset-0 -translate-x-full bg-linear-to-r from-transparent to-transparent transition-transform duration-500 group-hover:translate-x-full" />
                 </Button>
             </DialogTrigger>
 
             <DialogContent className="sm:max-w-125">
                 <form onSubmit={handleSubmit}>
-                    <DialogHeader>
-                        <DialogTitle className="text-xl">New Global Vendor</DialogTitle>
-                        <DialogDescription>Add a new partner to your master list. They will be available for all future events.</DialogDescription>
+                    <DialogHeader className="relative border-b border-zinc-100 pb-5 dark:border-zinc-800">
+                        <div className="bg-primary absolute top-0 -left-6 h-full w-1" />
+
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold tracking-[0.3em] text-zinc-400 uppercase">System Registry</span>
+                            </div>
+                            <DialogTitle className="text-xl font-black tracking-tight uppercase">
+                                Register / <span className="text-primary">Global Vendor</span>
+                            </DialogTitle>
+                            <DialogDescription className="text-muted-foreground text-[13px] leading-relaxed font-medium">Initialize a new service partner record. This entity will be accessible across all managed event timelines.</DialogDescription>
+                        </div>
                     </DialogHeader>
 
                     <FieldGroup className="grid gap-5 py-6">
@@ -124,27 +134,29 @@ export function CreateGlobalVendor({ onVendorCreated }: Props) {
                             </Field>
                         </FieldGroup>
 
-                        <Field className="grid gap-2">
-                            <Label htmlFor="email" className="flex items-center gap-2">
-                                <Mail className="text-muted-foreground size-3.5" /> Email Address
-                            </Label>
-                            <Input id="email" name="email" type="email" placeholder="hello@vendor.com" />
-                        </Field>
+                        <FieldGroup className="grid grid-cols-2 gap-4">
+                            <Field className="grid gap-2">
+                                <Label htmlFor="email" className="flex items-center gap-2">
+                                    <Mail className="text-muted-foreground size-3.5" /> Email Address
+                                </Label>
+                                <Input id="email" name="email" type="email" placeholder="hello@vendor.com" />
+                            </Field>
 
-                        <Field className="grid gap-2">
-                            <Label htmlFor="website" className="flex items-center gap-2">
-                                <Globe className="text-muted-foreground size-3.5" /> Website
-                            </Label>
-                            <Input id="website" name="website" type="url" placeholder="https://vendor.com" />
-                        </Field>
+                            <Field className="grid gap-2">
+                                <Label htmlFor="website" className="flex items-center gap-2">
+                                    <Globe className="text-muted-foreground size-3.5" /> Website
+                                </Label>
+                                <Input id="website" name="website" type="url" placeholder="https://vendor.com" />
+                            </Field>
+                        </FieldGroup>
                     </FieldGroup>
 
                     <DialogFooter className="gap-4">
                         <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
                             Cancel
                         </Button>
-                        <Button disabled={loading} className="px-8">
-                            {loading && <Loader2 className="mr-2 size-4 animate-spin" />}
+                        <Button disabled={loading}>
+                            {loading && <Loader2 className="size-4 animate-spin" />}
                             Create Vendor
                         </Button>
                     </DialogFooter>

@@ -65,10 +65,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     <StackTheme>
                         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
                             <TooltipProvider>
-                                <main className="scrollbar-thin h-screen overflow-y-auto">
+                                <main className="scrollbar-thin pb-12 h-screen overflow-y-auto">
                                     <div className="mx-auto max-w-11/12">
                                         <Navbar />
-                                        <div className="pt-12 ">{children}</div>
+                                        <div className="pt-12">{children}</div>
                                     </div>
                                 </main>
                             </TooltipProvider>

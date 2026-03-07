@@ -33,7 +33,7 @@ export default async function EventPayments({ params }: { params: Promise<Params
                 <div>
                     <div className="mb-1 flex items-center gap-2">
                         <span className="h-1 w-6 rounded-full bg-emerald-500" />
-                        <p className="text-ss font-black tracking-widest text-zinc-500 uppercase">Project Finance</p>
+                        <p className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">Project Finance</p>
                     </div>
                     <h1 className="text-4xl font-black tracking-tight italic">{event.title}</h1>
                     <p className="mt-1 font-medium text-zinc-500">Detailed financial breakdown and transaction history for this event.</p>

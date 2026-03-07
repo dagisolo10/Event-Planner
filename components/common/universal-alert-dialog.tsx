@@ -8,11 +8,12 @@ import { DropdownMenuItem } from "../ui/dropdown-menu";
 import deleteEvent from "@/server/events/delete-event";
 import deleteTask from "@/server/tasks/delete-task";
 import unlinkVendor from "@/server/vendors/event/unlink-vendor";
-import deleteGlobalVendor from "@/server/vendors/global/archive-global-vendor";
+import archiveGlobalVendor from "@/server/vendors/global/archive-global-vendor";
 import bulkUnlinkVendors from "@/server/vendors/event/bulk-vendor-unlink";
 import deletePayment from "@/server/payments/delete-payment";
+import bulkArchiveGlobalVendors from "@/server/vendors/global/archive-global-vendors";
 
-type DeleteType = "event" | "task" | "vendor-unlink" | "global-vendor" | "bulk-vendor-unlink" | "payment";
+type DeleteType = "event" | "task" | "vendor-unlink" | "global-vendor" | "bulk-global-vendor" | "bulk-vendor-unlink" | "payment";
 
 const DELETE_CONFIG = {
     event: (name: string) => ({
@@ -50,6 +51,13 @@ const DELETE_CONFIG = {
         loadingText: "Archiving...",
         successText: `${name} has been archived.`,
     }),
+    "bulk-global-vendor": (count: string) => ({
+        title: `Archive ${count} Global Vendors?`,
+        description: `This will move ${count} selected vendors to the archive. They will no longer appear in your directory or be available for new events. Historical data in existing events will not be affected.`,
+        actionText: "Archive All Selected",
+        loadingText: "Archiving records...",
+        successText: `Successfully archived ${count} vendors.`,
+    }),
     "bulk-vendor-unlink": (count: string) => ({
         title: "Remove Selected Vendors?",
         description: `This will remove ${count} vendors from this event and delete all their associated payment records. This cannot be undone.`,
@@ -81,7 +89,8 @@ export default function UniversalDeleteDialog({ type, id, name, eventId, extra, 
             task: () => deleteTask(id as string, eventId!),
             payment: () => deletePayment(id as string, eventId as string),
             "vendor-unlink": () => unlinkVendor(id as string, eventId!),
-            "global-vendor": () => deleteGlobalVendor(id as string),
+            "global-vendor": () => archiveGlobalVendor(id as string),
+            "bulk-global-vendor": () => bulkArchiveGlobalVendors(id as string[]),
             "bulk-vendor-unlink": () => bulkUnlinkVendors(id as string[], eventId!),
         };
 
@@ -93,7 +102,7 @@ export default function UniversalDeleteDialog({ type, id, name, eventId, extra, 
                 if (res && typeof res === "object" && "error" in res) throw new Error((res as { error: string }).error);
 
                 if (type === "event") router.push("/dashboard/events");
-                if (type === "global-vendor") router.refresh();
+                if (type === "global-vendor" || type === "bulk-global-vendor") router.refresh();
                 if (onComplete) onComplete();
 
                 return config.successText;
@@ -108,14 +117,17 @@ export default function UniversalDeleteDialog({ type, id, name, eventId, extra, 
             <AlertDialogTrigger asChild>
                 <DropdownMenuItem onSelect={(e) => e.preventDefault()} variant="destructive">
                     <Trash2 className="size-4" />
-                    {type === "bulk-vendor-unlink" ? `Remove (${id.length})` : "Delete"}
+                    {type === "bulk-vendor-unlink" || type === "bulk-global-vendor" ? `Archive Selected (${Array.isArray(id) ? id.length : 0})` : "Delete"}
                 </DropdownMenuItem>
             </AlertDialogTrigger>
 
             <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle className="text-destructive">{config.title}</AlertDialogTitle>
-                    <AlertDialogDescription>{config.description}</AlertDialogDescription>
+                <AlertDialogHeader className="relative">
+                    <div className="bg-destructive absolute top-0 -left-6 h-full w-1" />
+                    <div className="space-y-1">
+                        <AlertDialogTitle className="text-destructive text-xl font-bold tracking-tight">{config.title}</AlertDialogTitle>
+                        <AlertDialogDescription className="font-medium text-zinc-600 dark:text-zinc-400">{config.description}</AlertDialogDescription>
+                    </div>
                 </AlertDialogHeader>
 
                 <AlertDialogFooter>

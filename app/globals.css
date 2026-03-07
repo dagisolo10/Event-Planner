@@ -172,7 +172,7 @@
 }
 
 @theme {
-    --text-ss: 10px;
+    --text-[10px]: 10px;
 }
 
 @keyframes shake {
