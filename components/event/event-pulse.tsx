@@ -100,13 +100,13 @@ export default function EventPulse({ taskPercentage, clientName, location, start
                         ) : (
                             <div className="space-y-1 text-center md:text-left">
                                 <h4 className={cn("font-poppins text-2xl font-black tracking-tight", status === "Ongoing" ? "animate-pulse text-white" : "text-muted-foreground")}>{status === "Ongoing" ? "LIVE OPERATIONS" : "EVENT ARCHIVED"}</h4>
-                                <p className="text-ss text-muted-foreground font-bold tracking-[0.2em] uppercase">Status: Nominal</p>
+                                <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">Status: Nominal</p>
                             </div>
                         )}
                     </div>
                 </div>
 
-                <div className="items-center flex justify-between gap-4">
+                <div className="flex items-center justify-between gap-4">
                     <InfoSlab icon={<User className="size-3" />} label="Principal" value={clientName} />
                     <InfoSlab icon={<MapPin className="size-3" />} label="Location" value={location} />
                 </div>

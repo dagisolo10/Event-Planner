@@ -13,7 +13,7 @@ export default function ExportButton({ eventId }: { eventId: string }) {
             </div>
             <div className="text-left">
                 <p className="font-semibold">Export Report</p>
-                <p className="text-ss text-zinc-400">Download Excel (.xlsx)</p>
+                <p className="text-[10px] text-zinc-400">Download Excel (.xlsx)</p>
             </div>
         </DropdownMenuItem>
     );

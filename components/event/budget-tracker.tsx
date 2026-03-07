@@ -68,7 +68,7 @@ export default function BudgetTracker({ utilizationPercentage, remainingBudget, 
     return (
         <Card className={cn("group relative overflow-hidden border-zinc-800 bg-zinc-950 p-6 text-white shadow-2xl transition-all duration-500", isOverBudget ? "border-rose-900/50 shadow-rose-500/10" : "")}>
             <div className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-size-[24px_24px] opacity-[0.03]" />
-            <div className="absolute -top-4 -right-4 size-24 bg-blue-500 opacity-30 blur-3xl transition-opacity duration-500 group-hover:opacity-45" />
+            <div className={cn(badgeColor(isOverBudget, utilizationPercentage).replace("border", "bg"), "absolute -top-4 -right-4 size-24 opacity-30 blur-3xl transition-opacity duration-500 group-hover:opacity-45")} />
 
             <div className="relative z-10 space-y-6">
                 <div className="flex items-center justify-between">
@@ -76,7 +76,7 @@ export default function BudgetTracker({ utilizationPercentage, remainingBudget, 
                         <div className={cn("rounded-lg border border-white/10 bg-white/5 p-1.5", isOverBudget ? "text-rose-500" : "text-emerald-400")}>
                             <Wallet className="size-4" />
                         </div>
-                        <h2 className="font-poppins text-ss text-muted-foreground font-black tracking-[0.2em] uppercase">Budget Utilization</h2>
+                        <h2 className="font-poppins text-muted-foreground text-[10px] font-black tracking-[0.2em] uppercase">Budget Utilization</h2>
                     </div>
                     <Badge className={cn("gap-1.5 px-3 uppercase", badgeColor(isOverBudget, utilizationPercentage))}>
                         {status.icon}
@@ -91,7 +91,7 @@ export default function BudgetTracker({ utilizationPercentage, remainingBudget, 
                     </span>
 
                     <div className="flex flex-col">
-                        <span className={cn("text-ss flex items-center font-bold tracking-wider uppercase", isOverBudget ? "text-rose-500" : "text-emerald-500")}>
+                        <span className={cn("flex items-center text-[10px] font-bold tracking-wider uppercase", isOverBudget ? "text-rose-500" : "text-emerald-500")}>
                             {isOverBudget ? <ArrowUpRight className="mr-1 size-3" /> : <ArrowDownRight className="mr-1 size-3" />}
                             {isOverBudget ? "Limit Breach" : "Under Cap"}
                         </span>
@@ -117,7 +117,7 @@ export default function BudgetTracker({ utilizationPercentage, remainingBudget, 
 
                 <div className={cn("mt-4 flex items-center justify-between rounded-xl border p-4 transition-all", isOverBudget ? "border-rose-500/20 bg-rose-500/5" : "border-white/5 bg-white/5")}>
                     <div className="flex flex-col">
-                        <span className="text-ss text-muted-foreground font-bold tracking-tight uppercase">{isOverBudget ? "Budget Deficit" : "Available Funds"}</span>
+                        <span className="text-muted-foreground text-[10px] font-bold tracking-tight uppercase">{isOverBudget ? "Budget Deficit" : "Available Funds"}</span>
                         <span className={cn("font-poppins text-xl font-bold", isOverBudget ? "text-rose-400" : "text-white")}>{formatUSD(Math.abs(remainingBudget))}</span>
                     </div>
 
@@ -142,8 +142,8 @@ function InfoTooltip({ content }: { content: string }) {
 
             <TooltipContent side="bottom" className="max-w-60 border-zinc-800 bg-zinc-950 p-3 leading-relaxed text-white shadow-xl">
                 <div className="flex flex-col gap-1.5">
-                    <p className="text-ss text-muted-foreground font-bold tracking-widest uppercase">Telemetry Analysis</p>
-                    <p>{content}</p>
+                    <p className="text-muted-foreground text-[10px] font-bold tracking-wide uppercase">Telemetry Analysis</p>
+                    <p className="font-light tracking-wider">{content}</p>
                 </div>
             </TooltipContent>
         </Tooltip>

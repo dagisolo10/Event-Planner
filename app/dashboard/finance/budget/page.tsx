@@ -74,7 +74,7 @@ export default function BudgetPage() {
                                         <div className="flex items-center gap-2">
                                             <span className="font-bold text-zinc-900">{item.category}</span>
                                             {isOver && (
-                                                <Badge variant="outline" className="text-ss flex gap-1 border-red-300 bg-red-100 text-red-500">
+                                                <Badge variant="outline" className="flex gap-1 border-red-300 bg-red-100 text-[10px] text-red-500">
                                                     <IconAlertTriangle className="size-3" /> Over Budget
                                                 </Badge>
                                             )}

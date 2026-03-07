@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import getTasks from "@/server/tasks/get-tasks";
 import { redirect, notFound } from "next/navigation";
 import TaskTable from "@/components/tasks/task-table";
@@ -6,6 +5,7 @@ import { Params } from "next/dist/server/request/params";
 import { TaskSheet } from "@/components/tasks/task-sheet";
 import { ForwardRefExoticComponent, RefAttributes } from "react";
 import { CheckCircle2, Clock, AlertCircle, LucideProps } from "lucide-react";
+import GlowCard from "@/components/others/glow-card";
 
 export default async function EventTasksPage({ params }: { params: Promise<Params> }) {
     const { id: eventId } = await params;
@@ -25,21 +25,38 @@ export default async function EventTasksPage({ params }: { params: Promise<Param
 
     return (
         <main className="space-y-8 pb-10">
-            <header className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                <div>
-                    <h1 className="text-3xl font-black tracking-tight">Task Pipeline</h1>
-                    <p className="text-sm font-medium text-zinc-500">Managing {tasks.length} active milestones for this event.</p>
+            <header className="relative flex flex-col justify-between gap-6 md:flex-row md:items-end">
+                <div className="space-y-1.5">
+                    <div className="flex items-center gap-2">
+                        <div className="bg-primary h-5 w-1" />
+                        <span className="text-muted-foreground text-[10px] font-black tracking-[0.4em] uppercase">Operations / Task Pipeline</span>
+                    </div>
+
+                    <h1 className="font-poppins text-4xl tracking-tight lg:text-5xl">
+                        Event <span className="text-gradient">Milestones</span>
+                    </h1>
+
+                    <p className="max-w-md text-xs font-bold tracking-wider text-zinc-500/80 uppercase">
+                        Synthesizing <span className="text-zinc-900 dark:text-zinc-100">{tasks.length} active records</span> for this deployment.
+                    </p>
                 </div>
 
-                <TaskSheet eventId={id} />
+                <div className="flex items-center gap-4">
+                    <div className="hidden flex-col items-end border-r border-zinc-200 pr-4 text-right lg:flex dark:border-zinc-800">
+                        <span className="text-[10px] font-bold tracking-widest text-zinc-400 uppercase">Completion rate</span>
+                        <span className="font-poppins text-xl font-black text-emerald-500">{tasks.length > 0 ? Math.round((doneTasks / tasks.length) * 100) : 0}%</span>
+                    </div>
+
+                    <TaskSheet eventId={id} />
+                </div>
             </header>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-5">
-                <StatWidget label="Done" value={doneTasks} icon={CheckCircle2} color="text-emerald-500" bg="bg-emerald-500/20" />
-                <StatWidget label="In Progress" value={inProgressTasks} icon={Clock} color="text-blue-500" bg="bg-blue-500/20" />
-                <StatWidget label="Pending" value={pendingTasks} icon={AlertCircle} color="text-amber-500" bg="bg-amber-500/20" />
-                <StatWidget label="Overdue" value={overdueTasks} icon={AlertCircle} color="text-red-500" bg="bg-red-500/20" />
-                <StatWidget label="Urgent Tasks" value={urgentTasks} icon={AlertCircle} color="text-red-500" bg="bg-red-500/20" />
+                <TaskCards title="Done" value={doneTasks} icon={CheckCircle2} color="emerald" />
+                <TaskCards title="In Progress" value={inProgressTasks} icon={Clock} color="blue" />
+                <TaskCards title="Pending" value={pendingTasks} icon={AlertCircle} color="amber" />
+                <TaskCards title="Overdue" value={overdueTasks} icon={AlertCircle} color="red" />
+                <TaskCards title="Urgent Tasks" value={urgentTasks} icon={AlertCircle} color="red" />
             </div>
 
             <TaskTable tasks={tasks} eventId={id} />
@@ -47,24 +64,38 @@ export default async function EventTasksPage({ params }: { params: Promise<Param
     );
 }
 
-interface WidgetProp {
-    label: string;
+interface TaskCardsProp {
+    title: string;
     value: number;
-    color: string;
-    bg: string;
     icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
+    color: "blue" | "orange" | "emerald" | "red" | "amber";
 }
 
-function StatWidget({ label, value, icon: Icon, color, bg }: WidgetProp) {
+function TaskCards({ title, value, icon: Icon, color }: TaskCardsProp) {
+    const colorMap = {
+        blue: "text-blue-500 border-blue-500/20 bg-blue-500",
+        orange: "text-orange-500 border-orange-500/20 bg-orange-500",
+        emerald: "text-emerald-500 border-emerald-500/20 bg-emerald-500",
+        amber: "text-amber-500 border-amber-500/20 bg-amber-500",
+        red: "text-red-500 border-red-500/20 bg-red-500",
+    };
+
+    const currentStyles = colorMap[color];
+
     return (
-        <Card className="flex-row items-center gap-4 p-6">
-            <div className={`rounded-full ${bg} p-3 ${color}`}>
-                <Icon className="size-6" />
+        <GlowCard color={currentStyles.split(" ")[2]}>
+            <div className="relative z-10 flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                    <div className={`grid size-10 place-items-center rounded-xl border transition-transform duration-500 group-hover:scale-110 ${currentStyles.split(" ").slice(0, 2).join(" ")}`}>
+                        <Icon className="size-5" />
+                    </div>
+                    <span className="font-poppins text-muted-foreground text-xs font-bold tracking-widest uppercase">{title}</span>
+                </div>
+
+                <div className="space-y-1">
+                    <h3 className="font-poppins text-3xl font-extrabold">{value}</h3>
+                </div>
             </div>
-            <div>
-                <p className="text-ss font-black tracking-wider text-zinc-500 uppercase">{label}</p>
-                <p className="text-2xl font-bold">{value}</p>
-            </div>
-        </Card>
+        </GlowCard>
     );
 }

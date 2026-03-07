@@ -18,7 +18,7 @@ export default function SummaryCard({ overdueVendors, pendingTasks }: CardProp) 
             <CardHeader className="py-2">
                 <div className="flex items-center gap-2">
                     <Activity className="size-4 text-zinc-400 dark:text-zinc-500" />
-                    <CardTitle className="font-poppins text-ss font-black tracking-[0.2em] text-zinc-400 uppercase dark:text-zinc-500">Operations Summary</CardTitle>
+                    <CardTitle className="font-poppins text-[10px] font-black tracking-[0.2em] text-zinc-400 uppercase dark:text-zinc-500">Operations Summary</CardTitle>
                 </div>
             </CardHeader>
 
@@ -54,11 +54,11 @@ export default function SummaryCard({ overdueVendors, pendingTasks }: CardProp) 
                 <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-3 dark:border-white/5">
                     <div className="flex items-center gap-1.5">
                         <div className={cn("size-1.5 rounded-full", hasCriticalIssues ? "animate-pulse bg-rose-500" : "bg-emerald-500")} />
-                        <span className="text-ss font-black tracking-wide text-zinc-400 uppercase dark:text-zinc-600">{hasCriticalIssues ? "Action Required" : "System Nominal"}</span>
+                        <span className="text-[10px] font-black tracking-wide text-zinc-400 uppercase dark:text-zinc-600">{hasCriticalIssues ? "Action Required" : "System Nominal"}</span>
                     </div>
 
                     <div className="flex gap-2">
-                        <span className="text-ss text-muted-foreground font-bold tracking-widest">SEC-OP-04</span>
+                        <span className="text-muted-foreground text-[10px] font-bold tracking-widest">SEC-OP-04</span>
                     </div>
                 </div>
             </CardContent>

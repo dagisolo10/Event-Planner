@@ -17,6 +17,7 @@ import { Metadata } from "next";
 import { stackServerApp } from "@/stack/server";
 import TableWrapper from "@/components/others/table-border-wrapper";
 import GlowCard from "@/components/others/glow-card";
+import UniversalDeleteDialog from "@/components/common/universal-alert-dialog";
 
 export const metadata: Metadata = {
     title: "EventSync — Dashboard",
@@ -57,8 +58,9 @@ export default async function Dashboard() {
 
     return (
         <div className="space-y-10 pb-12">
-            <header className="flex flex-col gap-2">
-                <h1 className="font-poppins text-3xl font-extrabold tracking-tight md:text-4xl">
+            <header className="relative flex flex-col gap-2">
+                <div className="bg-primary/5 pointer-events-none absolute -top-24 -left-24 hidden size-96 blur-[120px] dark:block" />
+                <h1 className="font-poppins text-3xl tracking-tight md:text-5xl">
                     Welcome back, <span className="from-primary bg-linear-to-r to-purple-600 bg-clip-text text-transparent">{user?.displayName || "Organizer"}!</span>
                 </h1>
                 <p className="text-muted-foreground text-sm font-medium">Here is what&apos;s happening with your events today.</p>
@@ -94,20 +96,21 @@ export default async function Dashboard() {
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
+
                         <TableBody>
                             {events.length === 0 ? (
                                 <EmptyState type="event" colSpan={7} />
                             ) : (
                                 events.slice(0, 5).map((event) => (
-                                    <TableRow key={event.id} className="hover:bg-muted/20 transition-colors">
+                                    <TableRow key={event.id}>
                                         <TableCell>
-                                            <div className="flex flex-col font-medium">
-                                                <span>{event.title}</span>
+                                            <div className="flex flex-col">
+                                                <span className="font-medium">{event.title}</span>
                                                 <span className="text-muted-foreground text-xs">{event.location}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant="outline" className={statusColors.event[getEventStatus(event.startDate, event.endDate)]}>
+                                            <Badge variant="ghost" className={statusColors.event[getEventStatus(event.startDate, event.endDate)]}>
                                                 {getEventStatus(event.startDate, event.endDate)}
                                             </Badge>
                                         </TableCell>
@@ -144,8 +147,8 @@ export default async function Dashboard() {
                                                     </Link>
 
                                                     <DropdownMenuSeparator />
-                                                    {/* TODO */}
-                                                    <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+
+                                                    <UniversalDeleteDialog type="event" id={event.id} name={event.title} />
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

@@ -87,11 +87,17 @@ export function UpdateEventVendor({ vendor, open, setOpen }: EditProp) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="gap-1 sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Edit Contract Terms</DialogTitle>
-                    <DialogDescription>
-                        Update the financial agreement for <span className="font-semibold text-zinc-900 dark:text-zinc-200">{vendor.globalVendor.name}</span>.
-                    </DialogDescription>
+                <DialogHeader className="relative border-b border-zinc-100 pb-4 dark:border-zinc-800">
+                    <div className="absolute top-0 -left-6 h-full w-1 bg-amber-500" />
+                    <div className="space-y-1">
+                        <DialogTitle className="space-x-1 text-xl font-black tracking-tight uppercase">
+                            <span className="text-accent-foreground">Modify /</span>
+                            <span className="text-amber-600 dark:text-amber-400">Contract Terms</span>
+                        </DialogTitle>
+                        <DialogDescription className="text-muted-foreground">
+                            Current Vendor: <span className="text-zinc-900 dark:text-zinc-200">{vendor.globalVendor.name}</span>
+                        </DialogDescription>
+                    </div>
                 </DialogHeader>
 
                 <form onSubmit={handleEdit}>
@@ -115,7 +121,7 @@ export function UpdateEventVendor({ vendor, open, setOpen }: EditProp) {
                             Cancel
                         </Button>
 
-                        <Button disabled={loading}>
+                        <Button disabled={loading} variant="ghost" className="bg-amber-600 hover:bg-amber-600/50!">
                             {loading && <Loader2 className="size-4 animate-spin" />}
                             Save Changes
                         </Button>

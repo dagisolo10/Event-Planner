@@ -185,7 +185,7 @@ export default function EventForm({ event }: { event?: Event }) {
                         <div className="bg-primary h-1 w-6 rounded-full" />
                         <span className="font-poppins text-muted-foreground text-xs font-bold tracking-widest uppercase">{isUpdate ? "Configuration" : "New Project"}</span>
                     </div>
-                    <h1 className="font-poppins text-4xl font-extrabold tracking-tight">
+                    <h1 className="font-poppins text-4xl tracking-tight">
                         {isUpdate ? "Refine " : "Event "}
                         <span className="text-gradient">Blueprint</span>
                     </h1>
@@ -227,14 +227,7 @@ export default function EventForm({ event }: { event?: Event }) {
 
                             <WarningWrapper className="space-y-4" id="date" invalid={!!isDateError} message="End schedule can't be earlier than or equal to the start schedule">
                                 <InputGroup>
-                                    <CalendarPopup
-                                        label="Commences"
-                                        name="startDate"
-                                        icon={CalIcon}
-                                        value={formValues.startDate}
-                                        timeValue={formValues.startTime}
-                                        onUpdate={(date, time) => setFormValues((prev) => ({ ...prev, startDate: date, startTime: time }))}
-                                    />
+                                    <CalendarPopup label="Commences" name="startDate" icon={CalIcon} value={formValues.startDate} timeValue={formValues.startTime} onUpdate={(date, time) => setFormValues((prev) => ({ ...prev, startDate: date, startTime: time }))} />
                                     <CalendarPopup label="Concludes" name="endDate" icon={Clock} value={formValues.endDate} timeValue={formValues.endTime} onUpdate={(date, time) => setFormValues((prev) => ({ ...prev, endDate: date, endTime: time }))} />
                                 </InputGroup>
                             </WarningWrapper>
@@ -246,7 +239,7 @@ export default function EventForm({ event }: { event?: Event }) {
                     </section>
 
                     <footer className="flex items-center justify-end gap-4 pt-4">
-                        <Button disabled={loading} type="submit" size="lg" className="group rounded-full px-8 font-bold transition-all hover:scale-105 active:scale-95">
+                        <Button disabled={loading} type="submit" size="lg" className="group rounded-full px-8 transition-all hover:scale-105 active:scale-95">
                             {loading ? <Loader2 className="size-4 animate-spin" /> : isUpdate ? <CheckCircle2 className="size-4" /> : <Sparkles className="size-4" />}
                             {isUpdate ? "Save Changes" : "Create Event"}
                         </Button>

@@ -21,7 +21,7 @@ export default function DirectAccess({ clientName, event, events, eventVendors, 
     const [open, setOpen] = useState<boolean>(false);
 
     return (
-        <Card className="bg-background relative overflow-hidden dark:border-zinc-800 shadow-lg dark:shadow-2xl">
+        <Card className="bg-background relative overflow-hidden shadow-lg dark:border-zinc-800 dark:shadow-2xl">
             <div className="pointer-events-none absolute inset-0 z-0 opacity-30">
                 <div className="animate-scan absolute h-0.5 w-full bg-linear-to-r from-transparent via-emerald-500 to-transparent" />
             </div>
@@ -29,7 +29,7 @@ export default function DirectAccess({ clientName, event, events, eventVendors, 
             <CardHeader className="relative z-10 border-b border-white/5 pb-4">
                 <div className="flex items-center gap-2">
                     <Terminal className="size-5 text-emerald-500" />
-                    <CardTitle className="font-poppins text-ss text-muted-foreground font-black tracking-[0.2em] uppercase">Direct Access Terminal</CardTitle>
+                    <CardTitle className="font-poppins text-muted-foreground text-[10px] font-black tracking-[0.2em] uppercase">Direct Access Terminal</CardTitle>
                 </div>
             </CardHeader>
 
@@ -37,15 +37,15 @@ export default function DirectAccess({ clientName, event, events, eventVendors, 
                 <div className="group relative">
                     <div className="absolute -inset-0.5 rounded-xl bg-emerald-500/5 opacity-0 blur transition duration-500 group-hover:opacity-100" />
 
-                    <Button onClick={() => setOpen(true)} variant="outline" className="group relative h-auto w-full justify-start overflow-hidden border-zinc-800 dark:bg-zinc-900/40 px-4 py-4 shadow-inner transition-all duration-300 hover:border-zinc-700 dark:hover:bg-zinc-900">
+                    <Button onClick={() => setOpen(true)} variant="outline" className="group relative h-auto w-full justify-start overflow-hidden border-zinc-800 px-4 py-4 shadow-inner transition-all duration-300 hover:border-zinc-700 dark:bg-zinc-900/40 dark:hover:bg-zinc-900">
                         <div className="flex w-full items-center gap-4">
-                            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border dark:border-white/10 dark:bg-zinc-950 transition-colors group-hover:border-emerald-500/50 group-hover:bg-emerald-500/10">
+                            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border transition-colors group-hover:border-emerald-500/50 group-hover:bg-emerald-500/10 dark:border-white/10 dark:bg-zinc-950">
                                 <CreditCard className="size-4 text-emerald-500/70 transition-colors group-hover:text-emerald-400" />
                             </div>
 
                             <div className="text-left">
                                 <p className="font-poppins text-sm font-bold tracking-tight uppercase">Process Payment</p>
-                                <p className="text-ss leading-tight font-medium text-zinc-500">
+                                <p className="text-[10px] leading-tight font-medium text-zinc-500">
                                     Initialize <span className="text-emerald-500/80">Financial Settlement</span>
                                 </p>
                             </div>
@@ -77,16 +77,16 @@ export default function DirectAccess({ clientName, event, events, eventVendors, 
 
 function AccessButton({ clientName, email }: { clientName?: string; email?: string }) {
     const content = (
-        <div className="flex relative w-full items-center gap-4">
+        <div className="relative flex w-full items-center gap-4">
             <div className="absolute -inset-0.5 rounded-xl bg-emerald-500/5 opacity-0 blur transition duration-500 group-hover:opacity-100" />
 
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-white/10 dark:bg-zinc-950 transition-colors group-hover:border-emerald-500/50 group-hover:bg-emerald-500/10">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-white/10 transition-colors group-hover:border-emerald-500/50 group-hover:bg-emerald-500/10 dark:bg-zinc-950">
                 <Mail className="size-4 text-emerald-500/70 transition-colors group-hover:text-emerald-400" />
             </div>
 
             <div className="text-left">
                 <p className="font-poppins text-sm font-bold tracking-tight uppercase">Contact Client</p>
-                <p className="text-ss leading-tight font-medium text-zinc-500">
+                <p className="text-[10px] leading-tight font-medium text-zinc-500">
                     Dispatch report to <span className="text-emerald-500">{clientName || "Principal"}</span>
                 </p>
             </div>
